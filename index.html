@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Threads 20投稿ジェネレーター（MVP）</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Threads 20投稿ジェネレーター（MVP）</h1>
+        <p class="lead">テーマ・狙い・口調を選ぶだけで、今日の投稿案を20本まとめて作成します。</p>
+      </header>
+
+      <section class="panel form-panel">
+        <div class="field">
+          <label for="themeInput">今日のテーマ</label>
+          <input
+            id="themeInput"
+            type="text"
+            placeholder="例：看護師が副業を始める最初の一歩"
+            maxlength="120"
+          />
+        </div>
+
+        <div class="field">
+          <label for="goalSelect">今日の狙い</label>
+          <select id="goalSelect"></select>
+        </div>
+
+        <div class="field">
+          <label for="toneSelect">口調</label>
+          <select id="toneSelect"></select>
+        </div>
+
+        <div class="actions">
+          <button id="generateBtn" class="primary">20投稿を生成する</button>
+          <button id="copyAllBtn" class="secondary" disabled>20投稿をまとめてコピー</button>
+        </div>
+
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel">
+        <h2>生成結果</h2>
+        <p class="hint">各カードの「コピー」で個別コピー、「まとめてコピー」で20本を一括コピーできます。</p>
+        <div id="results" class="results"></div>
+      </section>
+    </main>
+
+    <template id="postTemplate">
+      <article class="post-card">
+        <div class="post-meta">
+          <span class="post-number"></span>
+          <span class="post-category"></span>
+        </div>
+        <textarea class="post-text" rows="6" readonly></textarea>
+        <button class="copy-btn secondary">コピー</button>
+      </article>
+    </template>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
