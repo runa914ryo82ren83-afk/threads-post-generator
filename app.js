@@ -186,6 +186,155 @@ const SLOT_THEME_RULES = {
   "22:47": ["継続・毎日投稿", "価値観・本音", "看護師・夜勤・本業との両立"],
 };
 
+const CATEGORY_ALIAS = {
+  "note初心者の悩み": "note初心者の悩み",
+  "有料記事が売れない理由": "売れない理由",
+  "低単価から抜け出す考え方": "低単価から抜け出す",
+  "無料記事の書き方": "無料記事に詰め込みすぎ",
+  "固定記事・導線": "固定記事・導線",
+  "るナースの失敗談": "るナースの失敗談",
+  "看護師・夜勤・本業との両立": "看護師・夜勤・本業との両立",
+  "AI×note": "AI×note",
+  "継続・毎日投稿": "継続・毎日投稿",
+  "何者か開示・自己紹介": "何者か開示",
+  "価値観・本音": "価値観・本音",
+  "直接投稿向けテーマ": "直接投稿",
+  "間接投稿向けテーマ": "間接投稿",
+};
+
+const TEMPLATE_LIBRARY = {
+  "note初心者の悩み": [
+    {
+      post1: `毎日noteを書いてるのに、反応がない。\n\nビューも増えないし、スキも増えない。\n\n「このまま続けても意味あるのかな」\n\nそう思って、投稿前に下書きを閉じる日があった。\n\nでも止まっていた原因は、やる気の問題じゃなかった。`,
+      post2: `見直したのは、文章力より先に流れだった。\n\n昔のわたしは、1本ずつ単発で書いていた。\n\nだから読んだ人が次に何を読めばいいか分からなかった。\n\n今日書く記事の次に読んでほしい記事を、1つだけ先に決める。\n\nそれだけでも投稿の迷いはかなり減る。\n\n不安になってる人は、まずここからで大丈夫。`,
+    },
+    {
+      post1: `書くネタはあるのに、投稿ボタンが押せない。\n\n「もっと上手く書けるはず」って考えて、夜だけ過ぎていく。\n\n昔のわたしは、ここで何度も止まってた。\n\n完璧を目指してる間に、読者に届くチャンスを逃してた。`,
+      post2: `先に決めるべきなのは、完璧な文章じゃない。\n\nこの記事で読んだ人に、どんな一歩をしてほしいか。\n\nそこを決めると、言葉は自然に整っていく。\n\n投稿は練習で育つ。\n\n止まっている人ほど、小さく出して続ければ大丈夫。`,
+    },
+  ],
+  "売れない理由": [
+    {
+      post1: `有料記事を出したのに、まったく売れない。\n\nこれ、かなりメンタルにくる。\n\n「やっぱりわたしには無理かも」\n\nそう思って、価格だけ何度も下げていた。`,
+      post2: `売れなかった理由は、値段だけじゃなかった。\n\n無料部分で満足されて、次に進む理由が作れていなかった。\n\n大事なのは、全部書き切ることより、続きを読みたくなる順番を作ること。\n\n流れを変えると、同じ内容でも反応は変わる。\n\n売れなくて苦しい人は、構成から見直してみて。`,
+    },
+    {
+      post1: `丁寧に書いた有料記事ほど、売れない時期があった。\n\n内容は悪くないはずなのに、購入につながらない。\n\n当時のわたしは、文章力のせいにしていた。`,
+      post2: `実際に足りなかったのは、購入前の安心感だった。\n\n誰に向けた記事か、何が変わる記事か。\n\nここが曖昧だと、人は決めきれない。\n\n先に読者のゴールを明確にすると、案内文は自然に書ける。\n\n売れない時ほど、言葉より設計を整えるのが近道。`,
+    },
+  ],
+  "低単価から抜け出す": [
+    {
+      post1: `300円の記事ばかり増えて、疲れていた。\n\n安いと買ってもらいやすいと思っていたけど、ずっと消耗していた。\n\n昔のわたしは、単価を上げることが怖かった。`,
+      post2: `低単価から抜ける時に必要なのは、勇気だけじゃない。\n\n価格の前に、読んだ後の変化を言語化すること。\n\n何を持ち帰れる記事なのかが明確になると、価格の説明がしやすくなる。\n\n遠回りしてる人は、まず価値の設計から始めてみて。`,
+    },
+    {
+      post1: `高単価にしたいのに、申し訳なさが先に出る。\n\nその気持ち、すごくわかる。\n\nわたしも長く「安くしないと選ばれない」と思っていた。`,
+      post2: `でも選ばれる理由は、安さだけじゃない。\n\n読者が迷わず進める導線と、結果が見える内容があると、単価は上げられる。\n\n値上げは強気になることじゃなく、価値を正しく渡すこと。\n\n怖さがある人ほど、少しずつ段階を作れば大丈夫。`,
+    },
+  ],
+  "無料記事に詰め込みすぎ": [
+    {
+      post1: `無料記事で全部伝えようとして、毎回長文になっていた。\n\n有益なはずなのに、売上にはつながらない。\n\n頑張るほど空回りしていた。`,
+      post2: `無料記事の役割は、完結させることだけじゃない。\n\n読んだ人が「次も読みたい」と思える余白を残すことが大事。\n\n全部を詰め込むより、次に進む理由を1つ置く。\n\nこれだけで有料記事の見え方は変わる。`,
+    },
+    {
+      post1: `親切にしようとして、無料部分が重くなっていた。\n\n当時のわたしは、出し惜しみしないことが正解だと思っていた。`,
+      post2: `今は、無料と有料の役割を分けて書いている。\n\n無料では悩みを整理して、有料では解決の手順を深く渡す。\n\nこの分け方にしてから、読者の動きがはっきりした。\n\n詰め込みすぎてる人は、役割分担から見直してみて。`,
+    },
+  ],
+  "固定記事・導線": [
+    {
+      post1: `せっかく読まれても、次に進まれない。\n\n原因は投稿の質じゃなくて、入口の弱さだった。\n\n固定記事を後回しにして、かなり遠回りした。`,
+      post2: `固定記事は、自己紹介だけの場所じゃない。\n\n初めて来た人に「どこから読めばいいか」を示す案内板。\n\n最初の3行とリンクの順番を整えるだけで、流れは変わる。\n\n売上より前に、迷わせない導線を作るのが大事。`,
+    },
+    {
+      post1: `投稿数は増えているのに、結果がついてこない。\n\nそんな時、固定記事を見直したら原因が見えた。\n\n読者が回遊する道が用意できていなかった。`,
+      post2: `導線はセンスより設計。\n\nどの記事から読んでも、次の一歩が分かる形にする。\n\nこの土台があると、毎日の投稿が資産として積み上がる。\n\n頑張ってるのに伸びない人ほど、固定記事を整えてみて。`,
+    },
+  ],
+  "るナースの失敗談": [
+    {
+      post1: `頑張ってるのに結果が出なくて、泣いた夜がある。\n\n投稿数だけ増やして、肝心の流れは放置していた。\n\n今思うと、焦りで空回りしていた。`,
+      post2: `失敗して気づいたのは、才能より順番だった。\n\n読者の悩みから書いて、次の行動までつなぐ。\n\nこの基本を外すと、どれだけ書いても届きにくい。\n\n遠回りした経験があるからこそ、今はここを最優先にしてる。`,
+    },
+    {
+      post1: `売れない理由を、ずっと自分の能力不足だと思っていた。\n\nでも実際は、努力の向きがズレていただけだった。`,
+      post2: `わたしが変えたのは、量より設計。\n\n誰に向ける投稿かを先に決めるだけで、言葉選びが変わる。\n\n失敗は無駄じゃなくて、改善ポイントを見つける材料だった。\n\n同じ場所で悩む人にこそ伝えたい。`,
+    },
+  ],
+  "看護師・夜勤・本業との両立": [
+    {
+      post1: `夜勤明けは、正直なにもしたくない。\n\nそれでもnoteを続けたいと思って、5分だけ書く日にした。\n\n完璧にやるより、止めないことを選んだ。`,
+      post2: `両立で大事なのは、気合いより仕組み。\n\n休憩中にメモを残して、帰宅後は整えるだけにする。\n\nこの流れにすると、本業が忙しい日でも続けやすい。\n\n時間がない人ほど、作業を分けると楽になる。`,
+    },
+    {
+      post1: `本業がしんどい日は、副業まで手が回らない。\n\nわたしも何度もそこで止まりかけた。\n\nでも看護師の経験は、そのまま発信の価値になる。`,
+      post2: `毎日長く書かなくてもいい。\n\n一つの体験を短く言語化して残すだけで、信頼は積み上がる。\n\n現場の気づきは、同じ悩みを持つ人の助けになる。\n\n無理なく続ける形を先に作っていこう。`,
+    },
+  ],
+  "AI×note": [
+    {
+      post1: `AIで下書きは早くなったのに、反応が落ちた時期があった。\n\n読みやすいのに、なぜか刺さらない。\n\n原因はすぐに分からなかった。`,
+      post2: `足りなかったのは、わたしの体験だった。\n\nAIの文章を土台にして、現場で感じたことを必ず入れる。\n\nこの一手間で、言葉の温度が戻る。\n\nAIは代わりに書く道具じゃなく、整理を助ける相棒として使うのがちょうどいい。`,
+    },
+    {
+      post1: `AIに任せすぎると、きれいだけど記憶に残らない文章になる。\n\nわたしはそれで何度も投稿を直した。`,
+      post2: `先に決めるのは、誰のどんな悩みを書くか。\n\n軸を決めてからAIを使うと、ブレない下書きが作れる。\n\n最後は自分の言葉で締める。\n\nこの順番にしてから、投稿が自然になった。`,
+    },
+  ],
+  "継続・毎日投稿": [
+    {
+      post1: `毎日投稿してるのに、手応えがない。\n\n続ける意味が分からなくなる日ってある。\n\nわたしも何度もそうだった。`,
+      post2: `それでも続けられたのは、目標を下げたから。\n\n完璧な一本より、今日の一本を出す。\n\n投稿の質は、継続の中で整っていく。\n\n止まりそうな人は、まず小さく続けるところからで大丈夫。`,
+    },
+    {
+      post1: `休みたくなる日は、投稿のハードルが急に高くなる。\n\n「今日は無理かも」で終わる日が続いていた。`,
+      post2: `わたしが決めた最低ラインは、三行だけでも出すこと。\n\nゼロにしないと、翌日戻りやすくなる。\n\n毎日投稿は根性勝負じゃない。\n\n続けられる条件を先に作ることが一番効く。`,
+    },
+  ],
+  "何者か開示": [
+    {
+      post1: `わたしは特別な実績がある人じゃなかった。\n\n看護師として働きながら、手探りでnoteを続けてきた。\n\n遠回りしたからこそ、伝えられることがある。`,
+      post2: `発信で大切にしているのは、背伸びしないこと。\n\nできたことも失敗も、そのまま言葉にする。\n\n同じように迷う人に、次の一歩が見える投稿を届けたい。\n\nこれからも等身大で続けていく。`,
+    },
+    {
+      post1: `最初のわたしは、肩書きも自信もなかった。\n\nそれでも続ける中で、誰に何を届けたいかが見えてきた。`,
+      post2: `何者かを語る時は、すごさより軸を伝える。\n\nわたしは、売るためだけじゃなく、悩みを言語化する投稿を大事にしている。\n\nこの軸があると、言葉がぶれにくくなる。\n\n自己紹介は更新しながら育てればいい。`,
+    },
+  ],
+  "価値観・本音": [
+    {
+      post1: `うまくいかない日は、強い言葉を使いたくなる。\n\nでもそんな時ほど、わたしは丁寧な言葉を選ぶようにしてる。\n\n焦りは文章に出るから。`,
+      post2: `売上を追うことは大事。\n\nでも先に信頼を失う書き方をすると、長く続かない。\n\nわたしは、読んだ人が安心して次に進める投稿を積み上げたい。\n\n遠回りに見えても、それが一番早いと感じてる。`,
+    },
+    {
+      post1: `結果が出ない時期は、自分を責めやすい。\n\nわたしも「向いてないかも」と何度も思った。`,
+      post2: `それでも続けてこれたのは、比べる相手を昨日の自分にしたから。\n\n少しでも前に進めたら、それで十分。\n\n本音で書いた言葉は、必要な人にちゃんと届く。\n\n不安な人は、今日の一歩だけ見れば大丈夫。`,
+    },
+  ],
+  "直接投稿": [
+    {
+      post1: `低単価の記事から抜け出したいのに、値上げが怖い。\n\n昔のわたしは、ここでずっと止まってた。\n\n売れない理由を価格だけで考えていた。`,
+      post2: `変えるべきだったのは、値段より導線だった。\n\n無料記事から有料記事へ自然につながる流れを作ると、反応は変わる。\n\nわたしが遠回りして見つけた「売れる文章の並べ方」はここにまとめました👇`,
+    },
+    {
+      post1: `有料記事の案内を書くたびに、売り込みが怖くなる。\n\nその気持ちが強いと、必要な人にも届かなくなる。`,
+      post2: `案内は押し売りじゃなく、必要な情報への道案内。\n\nわたしはこの形に変えてから、自然に届けられるようになった。\n\n高単価へ進むために整えた流れをまとめました👇`,
+    },
+  ],
+  "間接投稿": [
+    {
+      post1: `毎日頑張ってるのに、売上につながらない。\n\n努力不足だと思って、自分を責めていた。\n\nでも原因は別の場所にあった。`,
+      post2: `足りなかったのは、記事同士のつながりだった。\n\n読んだ人が次に進みやすい導線を作ると、反応は少しずつ変わる。\n\nわたしが遠回りして気づいた売れるnoteの「あるルール」は、固定記事にまとめています👇`,
+    },
+    {
+      post1: `無料記事を丁寧に書いても、なぜか結果が出ない。\n\nわたしは長くこの壁にぶつかっていた。`,
+      post2: `投稿単体で考えるのをやめて、全体の流れで設計したら景色が変わった。\n\n最初に読む記事と次に読む記事を決めるだけで、読者の迷いが減る。\n\n最初に見てほしい考え方を固定記事に置いています👇`,
+    },
+  ],
+};
+
 const docsState = { ngWords: NG_WORDS_FALLBACK };
 const uiState = { treeSets: [] };
 
@@ -274,18 +423,15 @@ function parseThemeLines(themesText) {
 
 function generateTwentyTreeSets(themesText) {
   const themes = parseThemeLines(themesText);
-  const empathyPhraseIndexes = pickDistinctIndexes(POST_SLOTS.length, 4, Date.now() + 77);
 
   return POST_SLOTS.map((slot, index) => {
     const number = index + 1;
     const theme = themes[index % themes.length];
     const mode = getAutoMode(slot.time);
     const tree = buildTreePosts({
-      slot,
       theme,
       mode,
       seed: Date.now() + index * 113,
-      useClassicEmpathyLine: empathyPhraseIndexes.has(index),
     });
 
     return {
@@ -393,282 +539,63 @@ function getAutoMode(time) {
   return "normal";
 }
 
-function buildTreePosts({ slot, theme, mode, seed, useClassicEmpathyLine }) {
-  const p = buildPerspective(theme, mode, seed);
+function buildTreePosts({ theme, mode, seed }) {
+  const category = resolveCategory(theme, mode);
+  const templates = TEMPLATE_LIBRARY[category] || TEMPLATE_LIBRARY["note初心者の悩み"];
+  const start = Math.abs(seed) % templates.length;
 
-  const hook = slot.time === "6:27" ? "おはるナース☀️" : pickRandom(["ちょっと聞いてほしい。", "正直、これでかなり遠回りした。", "これ、昔のわたしに一番伝えたい。"], seed + 1);
-  const selfDisclosureLine = useClassicEmpathyLine
-    ? "わたしもそうだった。"
-    : pickRandom([
-      "昔のわたしは、ここで遠回りしてた。",
-      "少し前のわたしは、ここで悩んでた。",
-      "わたしも、似たようなことで何回も止まった。",
-      "わたしはここでかなり時間を使った。",
-      "正直、最初は全然わかってなかった。",
-      "前は、これが原因だと思ってなかった。",
-      "今なら、ここを先に見直すと思う。",
-    ], seed + 12);
-
-  const post1Sections = [
-    hook,
-    p.readerPain,
-    p.readerMisunderstanding,
-    selfDisclosureLine,
-    p.pastFailure,
-    p.cliff,
-  ];
-
-  const post2Sections = [
-    p.awareness,
-    p.secondPostFailure,
-    p.whyImportant,
-    p.concreteAction,
-    "完璧じゃなくていい。",
-    p.gentleClose,
-  ];
-
-  const cta = getCtaByMode(mode, seed);
-  if (cta) post2Sections.push(cta, getLinkByMode(mode));
-
-  return {
-    post1: formatRunursePost(post1Sections, 1),
-    post2: formatRunursePost(post2Sections, 2),
-  };
-}
-
-function formatRunursePost(sections, postNumber) {
-  const formattedSections = sections
-    .map((section) => formatRunurseSection(section))
-    .filter(Boolean);
-
-  const withKeywordSpacing = applyKeywordSpacing(formattedSections.join("\n\n"));
-  const normalized = withKeywordSpacing.replace(/\n{3,}/g, "\n\n").trim();
-
-  if (postNumber === 1) {
-    return normalized.replace(/\n{2,}/g, "\n\n");
+  for (let i = 0; i < templates.length; i += 1) {
+    const pair = templates[(start + i) % templates.length];
+    const candidate = appendModeLink({
+      post1: pair.post1,
+      post2: pair.post2,
+      mode,
+    });
+    if (validatePostPair(candidate)) return candidate;
   }
 
-  return normalized;
-}
-
-function formatRunurseSection(text) {
-  const source = (text || "").trim();
-  if (!source) return "";
-
-  const sentences = splitKeepingPunctuation(source, "。")
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
-
-  const lineGroups = sentences.map((sentence) => {
-    const commaSplit = splitKeepingPunctuation(sentence, "、").flatMap((piece) => splitLongLine(piece.trim()));
-    const lines = commaSplit.filter(Boolean);
-    return chunkArray(lines, 2).map((chunk) => chunk.join("\n")).join("\n\n");
+  return appendModeLink({
+    post1: templates[0].post1,
+    post2: templates[0].post2,
+    mode,
   });
-
-  return lineGroups.filter(Boolean).join("\n\n");
 }
 
-function splitKeepingPunctuation(text, mark) {
-  const escaped = mark.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return text
-    .split(new RegExp(`(${escaped})`))
-    .reduce((acc, part) => {
-      if (!part) return acc;
-      if (part === mark && acc.length) {
-        acc[acc.length - 1] += mark;
-        return acc;
-      }
-      acc.push(part);
-      return acc;
-    }, []);
+function resolveCategory(theme, mode) {
+  const themeRecord = DEFAULT_THEME_POOL.find((item) => item.text === theme);
+  const mapped = themeRecord ? CATEGORY_ALIAS[themeRecord.category] : "";
+  if (mapped) return mapped;
+  if (mode === "direct") return "直接投稿";
+  if (mode === "indirect") return "間接投稿";
+  return "note初心者の悩み";
 }
 
-function splitLongLine(line, preferred = 18, min = 15, max = 22) {
-  const clean = line.trim();
-  if (!clean) return [];
-  if (clean.length <= max) return [clean];
-
-  const preferredBreaks = ["、", "。", "のに", "から", "けど", "ので", "して", "すると", "だった", "ます", "る", "た"];
-  const chunks = [];
-  let rest = clean;
-
-  while (rest.length > max) {
-    const breakIndex = findBreakIndex(rest, preferredBreaks, preferred, min, max);
-    if (breakIndex <= 0) break;
-    chunks.push(rest.slice(0, breakIndex).trim());
-    rest = rest.slice(breakIndex).trim();
-  }
-
-  if (rest) chunks.push(rest);
-  return chunks;
-}
-
-function findBreakIndex(text, candidates, preferred, min, max) {
-  let best = -1;
-  let bestDistance = Infinity;
-
-  for (let i = min; i <= Math.min(max, text.length - 1); i += 1) {
-    const left = text.slice(0, i);
-    const match = candidates.some((token) => left.endsWith(token));
-    if (!match) continue;
-    const distance = Math.abs(preferred - i);
-    if (distance < bestDistance) {
-      best = i;
-      bestDistance = distance;
-    }
-  }
-
-  if (best !== -1) return best;
-  return Math.min(max, text.length - 1);
-}
-
-function chunkArray(items, size) {
-  const result = [];
-  for (let i = 0; i < items.length; i += size) {
-    result.push(items.slice(i, i + size));
-  }
-  return result;
-}
-
-function applyKeywordSpacing(text) {
-  const keywords = ["でも", "正直", "わたしもそうだった", "昔のわたしは", "少し前のわたしは", "今ならわかる"];
-  const lines = text.split("\n");
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    if (!line.trim()) continue;
-    if (!keywords.some((keyword) => line.includes(keyword))) continue;
-    if (i > 0 && lines[i - 1].trim()) {
-      lines.splice(i, 0, "");
-      i += 1;
-    }
-    if (i < lines.length - 1 && lines[i + 1].trim()) {
-      lines.splice(i + 1, 0, "");
-      i += 1;
-    }
-  }
-
-  return lines.join("\n");
-}
-
-function buildPerspective(theme, mode, seed) {
-  const normalPains = [
-    "毎日投稿してるのに、反応が増えなくて心が折れそうになる。",
-    "時間を使って書いてるのに、売上につながらなくて不安になる。",
-    "頑張ってるのに変化が見えなくて、手が止まりそうになる。",
-  ];
-  const normalMisunderstandings = [
-    "記事数を増やせば、いつか自然に売れると思ってた。",
-    "文章を長くすれば価値が伝わると信じてた。",
-    "知識を全部書けば、喜ばれると思ってた。",
-  ];
-
-  const directPains = [
-    "300円の記事は売れるのに、高単価にすると怖くて出せない。",
-    "無料記事に全部書いてしまって、有料に残す内容がなくなる。",
-    "セールス感が怖くて、案内文を書く手が止まる。",
-  ];
-  const directMisunderstandings = [
-    "文章力が足りないから売れないと思ってた。",
-    "価格を下げれば反応は増えると思ってた。",
-    "有料にすること自体が悪いことだと思ってた。",
-  ];
-
-  const indirectPains = [
-    "努力してるのに売れなくて、何を変えればいいか分からなくなる。",
-    "無料記事を丁寧に書いてるのに、次の行動につながらない。",
-    "毎日続けてるのに反応が薄くて、方向が合ってるか不安になる。",
-  ];
-  const indirectMisunderstandings = [
-    "頑張る量を増やせば突破できると思ってた。",
-    "有益なら自然に次へ進んでくれると思ってた。",
-    "全部親切に書くほど売れると信じてた。",
-  ];
-
-  const selectedPains = mode === "direct" ? directPains : mode === "indirect" ? indirectPains : normalPains;
-  const selectedMis = mode === "direct" ? directMisunderstandings : mode === "indirect" ? indirectMisunderstandings : normalMisunderstandings;
-
-  return {
-    readerPain: pickRandom(selectedPains, seed + 2),
-    readerMisunderstanding: pickRandom(selectedMis, seed + 3),
-    pastFailure: pickRandom([
-      "その日その日で、なんとなく書いてた。",
-      "思いついたまま書いてたら、伝えたいことがぼやけてた。",
-      "書くことだけ決めて、ゴールを決めてなかった。",
-      "とりあえず記事を増やせばいいと思ってた。",
-    ], seed + 10),
-    cliff: pickRandom([
-      "努力してるのに進まない時は、やり方の確認が必要だった。",
-      "止まる原因は根性じゃなくて、書く前の準備不足だった。",
-      "前に進めないのは、見直しポイントがズレてたからだった。",
-    ], seed + 4),
-    awareness: pickRandom([
-      "見直したのは、記事の数じゃなくて記事のつなげ方だった。",
-      "わたしが変えたのは、書く量より先に流れの作り方だった。",
-      "まずは、今日の記事がどこにつながるのかを決めるようにした。",
-    ], seed + 5),
-    secondPostFailure: pickRandom([
-      "少し前のわたしは、入口だけ作ってその先を用意できてなかった。",
-      "昔のわたしは、書けた日だけで満足して流れを止めてた。",
-      "前のわたしは、最後まで読んだ人の次の動きを考えられてなかった。",
-    ], seed + 11),
-    whyImportant: pickRandom([
-      "この流れがないと、読者が次に進む道を作れてなかった。",
-      "つながりがないままだと、読んで終わりになりやすかった。",
-      "順番が決まるだけで、伝わり方が落ち着いてきた。",
-    ], seed + 13),
-    concreteAction: pickRandom([
-      "まずは、今日の記事がどこにつながるのかを1つだけ決める。",
-      "書く前に、最後に読んだ人が次に何を読むかだけ決めておく。",
-      "最初の一文を書く前に、今日の着地点をメモしてから進める。",
-    ], seed + 14),
-    gentleClose: pickRandom([
-      "今のやり方でいいのかなって不安になってる人は、まずはここからで大丈夫。",
-      "売れなくて悩んでる人は、まずはここからで大丈夫。",
-      "同じように迷ってる人は、まずはここからで大丈夫。",
-    ], seed + 15),
-  };
-}
-
-function pickDistinctIndexes(total, count, seed) {
-  const need = Math.max(0, Math.min(total, count));
-  const set = new Set();
-  let cursor = Math.abs(seed);
-
-  while (set.size < need) {
-    set.add(cursor % total);
-    cursor += 7;
-  }
-
-  return set;
-}
-
-function getCtaByMode(mode, seed) {
+function appendModeLink({ post1, post2, mode }) {
   if (mode === "direct") {
-    return pickRandom([
-      "低単価の記事から抜け出したくて、わたしが遠回りして見つけた「売れる文章の並べ方」はここにまとめました👇",
-      "高単価に進むのが怖かったわたしが、少しずつ変えられた流れをここに残しました👇",
-    ], seed + 6);
+    return { post1, post2: `${post2}\n\n${PAID_ARTICLE_LINK}` };
   }
-
   if (mode === "indirect") {
-    return pickRandom([
-      "わたしが遠回りして気づいた売れるnoteの「あるルール」は、固定記事にまとめています👇",
-      "努力の方向を整えるために、最初に読んでほしい内容を固定記事に置いています👇",
-    ], seed + 7);
+    return { post1, post2: `${post2}\n\n${FIXED_ARTICLE_LINK}` };
   }
-
-  return "";
+  return { post1, post2 };
 }
 
-function getLinkByMode(mode) {
-  if (mode === "direct") return PAID_ARTICLE_LINK;
-  if (mode === "indirect") return FIXED_ARTICLE_LINK;
-  return "";
-}
+function validatePostPair({ post1, post2 }) {
+  const forbiddenLineOnly = ["正直、", "昔のわたしは、"];
+  const allText = `${post1}\n${post2}`;
+  if (allText.includes("同じように迷ってる読者")) return false;
+  if (allText.includes("1/2") || allText.includes("2/2")) return false;
+  if (/(?:^|\n)(?:は|が|を|に|へ|で|と|も|の|や|か|ね|よ|な|だ[。]?)(?:\n|$)/m.test(allText)) return false;
+  if (/[ぁ-んァ-ン一-龥ー]\n[ぁ-んァ-ン一-龥ー]/.test(allText)) return false;
+  if (forbiddenLineOnly.some((line) => allText.includes(`\n${line}\n`) || allText.startsWith(`${line}\n`))) return false;
+  if (/(内部|生成|構成ルール|禁止ワード)/.test(allText)) return false;
 
-function pickRandom(list, seed) {
-  return list[Math.abs(seed) % list.length];
+  const post1Lines = new Set(post1.split("\n").map((line) => line.trim()).filter((line) => line.length >= 8));
+  const duplicated = post2
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length >= 8 && post1Lines.has(line));
+  return duplicated.length === 0;
 }
 
 function sanitizeText(text) {
