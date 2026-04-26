@@ -7,23 +7,9 @@ const GOAL_OPTIONS = [
 
 const TONE_OPTIONS = ["やさしい", "フラット", "熱量高め", "先輩っぽく端的"];
 
-const CATEGORY_FALLBACK = [
-  "自己開示",
-  "成功体験",
-  "失敗談",
-  "共感",
-  "勘違い指摘",
-  "行動促進",
-  "固定記事導線",
-];
+const CATEGORY_FALLBACK = ["自己開示", "成功体験", "失敗談", "共感", "勘違い指摘", "行動促進", "固定記事導線"];
 
-const NG_WORDS_FALLBACK = [
-  "絶対に稼げる",
-  "今すぐ買って",
-  "誰でも100%",
-  "放置で月収100万",
-  "知らないと損",
-];
+const NG_WORDS_FALLBACK = ["絶対に稼げる", "今すぐ買って", "誰でも100%", "放置で月収100万", "知らないと損"];
 
 const docsState = {
   categories: CATEGORY_FALLBACK,
@@ -48,27 +34,27 @@ async function init() {
   await loadDocs();
 
   dom.generateBtn.addEventListener("click", () => {
-    const posts = generateTwentyPosts({
+    const treeSets = generateTwentyTreeSets({
       theme: dom.themeInput.value.trim(),
       goal: dom.goalSelect.value,
       tone: dom.toneSelect.value,
       categories: docsState.categories,
     });
 
-    renderPosts(posts);
-    dom.copyAllBtn.disabled = posts.length === 0;
-    dom.status.textContent = `${posts.length}件の投稿案を生成しました。`;
+    renderTreeSets(treeSets);
+    dom.copyAllBtn.disabled = treeSets.length === 0;
+    dom.status.textContent = `${treeSets.length}件のツリー投稿案を生成しました。`;
   });
 
   dom.copyAllBtn.addEventListener("click", async () => {
-    const allText = collectAllPostsText();
+    const allText = collectAllTreeSetsText();
     if (!allText) {
       dom.status.textContent = "先に投稿を生成してください。";
       return;
     }
 
     const ok = await safeCopy(allText);
-    dom.status.textContent = ok ? "20投稿をまとめてコピーしました。" : "コピーに失敗しました。";
+    dom.status.textContent = ok ? "20セットをまとめてコピーしました。" : "コピーに失敗しました。";
   });
 }
 
@@ -92,10 +78,7 @@ function fillOptions() {
 }
 
 async function loadDocs() {
-  const [samplePosts, ngWords] = await Promise.all([
-    fetchText("docs/sample-posts.md"),
-    fetchText("docs/ng-words.md"),
-  ]);
+  const [samplePosts, ngWords] = await Promise.all([fetchText("docs/sample-posts.md"), fetchText("docs/ng-words.md")]);
 
   const categories = parseMarkdownHeadings(samplePosts);
   const ngWordCandidates = parseMarkdownBullets(ngWords);
@@ -136,68 +119,86 @@ function parseMarkdownBullets(text) {
     .filter(Boolean);
 }
 
-function generateTwentyPosts({ theme, goal, tone, categories }) {
+function generateTwentyTreeSets({ theme, goal, tone, categories }) {
   const safeTheme = theme || "看護師の働き方を少し良くする工夫";
   const normalizedCategories = categories.length ? categories : CATEGORY_FALLBACK;
-  const posts = [];
+  const treeSets = [];
 
   for (let i = 0; i < 20; i += 1) {
-    const category = normalizedCategories[i % normalizedCategories.length];
-    const body = buildPostBody({
+    const tree = buildTreePosts({
       number: i + 1,
-      category,
+      category: normalizedCategories[i % normalizedCategories.length],
       theme: safeTheme,
       goal,
       tone,
     });
 
-    posts.push({
+    treeSets.push({
       number: i + 1,
-      category,
-      text: sanitizeNgWords(body, docsState.ngWords),
+      post1: sanitizeNgWords(tree.post1, docsState.ngWords),
+      post2: sanitizeNgWords(tree.post2, docsState.ngWords),
     });
   }
 
-  return posts;
+  return treeSets;
 }
 
-function buildPostBody({ number, category, theme, goal, tone }) {
+function buildTreePosts({ number, category, theme, goal, tone }) {
   const toneGuide = {
-    やさしい: "読み手が安心できる言葉を選び、難しい言葉はかみ砕く",
-    フラット: "主観と事実のバランスを取り、短くわかりやすく",
-    熱量高め: "体験と感情を強めに出し、背中を押す言い回し",
-    先輩っぽく端的: "結論→理由→一言アドバイスの順で簡潔に",
+    やさしい: ["焦らなくていい", "いっしょに少しずつ", "できるところからで大丈夫"],
+    フラット: ["思っていたよりシンプル", "まずは小さく試す", "事実ベースで整理する"],
+    熱量高め: ["ここが変わると一気に前進", "勢いより継続が効く", "今の一歩が未来を変える"],
+    先輩っぽく端的: ["結論、最初は1つで十分", "迷ったら負担が低い順", "まず実行、あとで改善"],
   };
 
-  const openingPatterns = [
-    `【${theme}】今日の気づき${number}`,
-    `${theme}で遠回りしないコツ`,
-    `最初に知っておきたかった${theme}の話`,
-    `${theme}で不安が減った小さな習慣`,
+  const hookPatterns = [
+    `${theme}のこと、\nやろうと思うほど\n手が止まる日があった。`,
+    `${theme}って\n「ちゃんとしなきゃ」で\n苦しくなりやすい。`,
+    `${theme}を始めたころ、\nわたしは\n何から手をつけるか迷ってた。`,
+    `${theme}でつまずく原因、\n才能じゃなくて\n順番の問題だった。`,
   ];
 
-  const promptPatterns = [
-    "同じ悩みがある人は、今つまずいているポイントをコメントで教えてください。",
-    "あなたならどこから始めますか？一言でOKです。",
-    "試してみたいと思ったら『やる』とコメントしてください。",
-    "似た経験があれば、ひとこと共有してもらえると嬉しいです。",
+  const empathyPatterns = [
+    "がんばってるのに進まないと、\n自分だけ遅れてる気がするよね。",
+    "情報が多すぎると、\n選ぶだけで疲れてしまうよね。",
+    "正解探しを続けるほど、\n行動が後ろにずれる感覚、あった。",
+    "時間がない日は特に、\n完璧主義がいちばんの壁になる。",
   ];
 
-  const opening = openingPatterns[number % openingPatterns.length];
-  const prompt = promptPatterns[number % promptPatterns.length];
+  const insightPatterns = [
+    "気づいたのは、\n完璧より\n続けられる形が強いってこと。",
+    "学びになったのは、\n「小さく決める」と\n迷いが減ることだった。",
+    "変わったのは、\n最初のハードルを\n5分まで下げてから。",
+    "遠回りしてわかったのは、\n準備より\n1回目の実行が先ってこと。",
+  ];
 
-  return `${opening}
+  const actionPatterns = [
+    "今日は\n「今から10分でやること」を\n1つだけ決めてみて。",
+    "まずは\nいちばん負担が軽い一歩を\n1つだけやってみよう。",
+    "メモに\n「次の行動」を1行だけ書いて、\nそのまま手を動かしてみて。",
+    "迷ったら\n「これなら今日できる」を選んで、\n小さく始めてみよう。",
+  ];
 
-カテゴリ：${category}
-今日の狙い：${goal}
-口調メモ：${tone}（${toneGuide[tone] || toneGuide["フラット"]}）
+  const bridgePatterns = [
+    "同じところで迷ってる人の\nヒントになればうれしい。👇",
+    "わたしの失敗ごと、\n役立つ形でこれからもシェアするね。👇",
+    "このテーマで気づいたこと、\nまた具体例つきで書いていくね。👇",
+    "似た悩みがある人に届くように、\n続きも投稿していくね。👇",
+  ];
 
-伝えたいこと：
-${theme}は「完璧にやる」より「続けられる形にする」ほうが結果につながりやすいです。
-まずは5分でできる行動を1つ決めるだけで、次の一歩がかなり軽くなります。
+  const toneLine = toneGuide[tone] || toneGuide["フラット"];
+  const hook = hookPatterns[number % hookPatterns.length];
+  const empathy = empathyPatterns[number % empathyPatterns.length];
+  const insight = insightPatterns[number % insightPatterns.length];
+  const action = actionPatterns[number % actionPatterns.length];
+  const bridge = bridgePatterns[number % bridgePatterns.length];
+  const toneNote = toneLine[number % toneLine.length];
 
-しめ：
-${prompt}`;
+  const post1 = `${hook}\n\n${empathy}\n\n${category}でも、\n${goal}でも、\n最初は同じところで止まりやすい。\n\n${toneNote}。 1/2`;
+
+  const post2 = `${insight}\n\n${action}\n\n${bridge} 2/2`;
+
+  return { post1, post2 };
 }
 
 function sanitizeNgWords(text, ngWords) {
@@ -211,39 +212,64 @@ function sanitizeNgWords(text, ngWords) {
   }, text);
 }
 
-function renderPosts(posts) {
+function renderTreeSets(treeSets) {
   dom.results.innerHTML = "";
 
-  posts.forEach((post) => {
+  treeSets.forEach((treeSet) => {
     const node = dom.postTemplate.content.firstElementChild.cloneNode(true);
     const numberNode = node.querySelector(".post-number");
-    const categoryNode = node.querySelector(".post-category");
-    const textNode = node.querySelector(".post-text");
-    const copyBtn = node.querySelector(".copy-btn");
+    const post1Node = node.querySelector(".post1-text");
+    const post2Node = node.querySelector(".post2-text");
+    const copyPost1Btn = node.querySelector(".copy-post1-btn");
+    const copyPost2Btn = node.querySelector(".copy-post2-btn");
+    const copyTreeBtn = node.querySelector(".copy-tree-btn");
 
-    numberNode.textContent = `No.${post.number}`;
-    categoryNode.textContent = post.category;
-    textNode.value = post.text;
+    numberNode.textContent = `No.${treeSet.number}`;
+    post1Node.value = treeSet.post1;
+    post2Node.value = treeSet.post2;
 
-    copyBtn.addEventListener("click", async () => {
-      const ok = await safeCopy(post.text);
+    copyPost1Btn.addEventListener("click", async () => {
+      const ok = await safeCopy(treeSet.post1);
       dom.status.textContent = ok
-        ? `No.${post.number} をコピーしました。`
-        : `No.${post.number} のコピーに失敗しました。`;
+        ? `No.${treeSet.number} の投稿1をコピーしました。`
+        : `No.${treeSet.number} の投稿1のコピーに失敗しました。`;
+    });
+
+    copyPost2Btn.addEventListener("click", async () => {
+      const ok = await safeCopy(treeSet.post2);
+      dom.status.textContent = ok
+        ? `No.${treeSet.number} の投稿2をコピーしました。`
+        : `No.${treeSet.number} の投稿2のコピーに失敗しました。`;
+    });
+
+    copyTreeBtn.addEventListener("click", async () => {
+      const ok = await safeCopy(formatTreeSetText(treeSet));
+      dom.status.textContent = ok
+        ? `No.${treeSet.number} のツリーをコピーしました。`
+        : `No.${treeSet.number} のツリーのコピーに失敗しました。`;
     });
 
     dom.results.append(node);
   });
 }
 
-function collectAllPostsText() {
-  const areas = [...document.querySelectorAll(".post-text")];
-  if (!areas.length) {
+function formatTreeSetText(treeSet) {
+  return `No.${treeSet.number}\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
+}
+
+function collectAllTreeSetsText() {
+  const cards = [...document.querySelectorAll(".post-card")];
+  if (!cards.length) {
     return "";
   }
 
-  return areas
-    .map((area, index) => `---- 投稿${index + 1} ----\n${area.value}`)
+  return cards
+    .map((card) => {
+      const no = card.querySelector(".post-number")?.textContent || "";
+      const post1 = card.querySelector(".post1-text")?.value || "";
+      const post2 = card.querySelector(".post2-text")?.value || "";
+      return `${no}\n投稿1（1/2）\n${post1}\n\n投稿2（2/2）\n${post2}`;
+    })
     .join("\n\n");
 }
 

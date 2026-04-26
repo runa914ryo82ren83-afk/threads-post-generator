@@ -125,22 +125,19 @@ button:disabled {
   gap: 8px;
 }
 
-.post-meta {
+.post-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
 }
 
 .post-number {
   font-weight: 700;
 }
 
-.post-category {
-  background: #f0f3ff;
-  color: #2c4187;
-  border-radius: 999px;
-  padding: 4px 10px;
+.tree-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
 }
 
 @media (min-width: 768px) {

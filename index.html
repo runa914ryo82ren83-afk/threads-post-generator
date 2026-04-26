@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Threads 20投稿ジェネレーター（MVP）</title>
+    <title>Threads 20ツリー投稿ジェネレーター（MVP）</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="container">
       <header>
-        <h1>Threads 20投稿ジェネレーター（MVP）</h1>
-        <p class="lead">テーマ・狙い・口調を選ぶだけで、今日の投稿案を20本まとめて作成します。</p>
+        <h1>Threads 20ツリー投稿ジェネレーター（MVP）</h1>
+        <p class="lead">テーマ・狙い・口調を選ぶだけで、2投稿1セットのツリー投稿案を20セット作成します。</p>
       </header>
 
       <section class="panel form-panel">
@@ -35,8 +35,8 @@
         </div>
 
         <div class="actions">
-          <button id="generateBtn" class="primary">20投稿を生成する</button>
-          <button id="copyAllBtn" class="secondary" disabled>20投稿をまとめてコピー</button>
+          <button id="generateBtn" class="primary">20セットを生成する</button>
+          <button id="copyAllBtn" class="secondary" disabled>20セットをまとめてコピー</button>
         </div>
 
         <p id="status" class="status" aria-live="polite"></p>
@@ -44,19 +44,25 @@
 
       <section class="panel">
         <h2>生成結果</h2>
-        <p class="hint">各カードの「コピー」で個別コピー、「まとめてコピー」で20本を一括コピーできます。</p>
+        <p class="hint">各セットの投稿1/投稿2を個別コピー、またはツリーをまとめてコピーできます。</p>
         <div id="results" class="results"></div>
       </section>
     </main>
 
     <template id="postTemplate">
       <article class="post-card">
-        <div class="post-meta">
+        <div class="post-header">
           <span class="post-number"></span>
-          <span class="post-category"></span>
         </div>
-        <textarea class="post-text" rows="6" readonly></textarea>
-        <button class="copy-btn secondary">コピー</button>
+        <label class="tree-label">投稿1（1/2）</label>
+        <textarea class="post-text post1-text" rows="7" readonly></textarea>
+        <button class="copy-post1-btn secondary">投稿1をコピー</button>
+
+        <label class="tree-label">投稿2（2/2）</label>
+        <textarea class="post-text post2-text" rows="7" readonly></textarea>
+        <button class="copy-post2-btn secondary">投稿2をコピー</button>
+
+        <button class="copy-tree-btn secondary">ツリーをまとめてコピー</button>
       </article>
     </template>
 
