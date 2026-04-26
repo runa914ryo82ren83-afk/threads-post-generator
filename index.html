@@ -10,7 +10,7 @@
     <main class="container">
       <header>
         <h1>Threads 20ツリー投稿ジェネレーター（MVP）</h1>
-        <p class="lead">テーマ・狙い・口調を選ぶだけで、2投稿1セットのツリー投稿案を20セット作成します。</p>
+        <p class="lead">テーマを1行ずつ入れるだけで、るナース文体のツリー投稿を20セット作成します。</p>
       </header>
 
       <section class="panel form-panel">
@@ -21,16 +21,6 @@
             rows="6"
             placeholder="例：note初心者が挫折する理由\n有料記事を出すのが怖い理由\nビューが伸びない人の共通点"
           ></textarea>
-        </div>
-
-        <div class="field">
-          <label for="goalSelect">今日の狙い</label>
-          <select id="goalSelect"></select>
-        </div>
-
-        <div class="field">
-          <label for="toneSelect">口調</label>
-          <select id="toneSelect"></select>
         </div>
 
         <div class="actions">
@@ -54,15 +44,18 @@
           <span class="post-number"></span>
         </div>
         <p class="post-theme"></p>
+        <p class="post-type"></p>
+
         <label class="tree-label">投稿1（1/2）</label>
-        <textarea class="post-text post1-text" rows="7" readonly></textarea>
-        <button class="copy-post1-btn secondary">投稿1をコピー</button>
+        <textarea class="post-text post1-text" rows="9" readonly></textarea>
+        <button class="copy-post1-btn secondary" data-default-label="投稿1をコピー">投稿1をコピー</button>
 
         <label class="tree-label">投稿2（2/2）</label>
-        <textarea class="post-text post2-text" rows="7" readonly></textarea>
-        <button class="copy-post2-btn secondary">投稿2をコピー</button>
+        <textarea class="post-text post2-text" rows="9" readonly></textarea>
+        <button class="copy-post2-btn secondary" data-default-label="投稿2をコピー">投稿2をコピー</button>
 
-        <button class="copy-tree-btn secondary">ツリーをまとめてコピー</button>
+        <button class="copy-tree-btn secondary" data-default-label="ツリーをまとめてコピー">ツリーをまとめてコピー</button>
+        <p class="copy-feedback" aria-live="polite"></p>
       </article>
     </template>
 
