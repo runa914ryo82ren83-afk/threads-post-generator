@@ -6,6 +6,8 @@
   --muted: #5d6479;
   --primary: #3457ff;
   --border: #dce0ea;
+  --success: #1c7c54;
+  --error: #b42318;
 }
 
 * {
@@ -55,23 +57,16 @@ h2 {
   gap: 6px;
 }
 
-input,
-select,
 textarea,
 button {
   font: inherit;
 }
 
-input,
-select,
 textarea {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
   background: #fff;
-}
-
-textarea {
   width: 100%;
   resize: vertical;
 }
@@ -107,7 +102,11 @@ button:disabled {
 .status {
   margin: 0;
   min-height: 1.5em;
-  color: var(--muted);
+  color: var(--success);
+}
+
+.status.error {
+  color: var(--error);
 }
 
 .results {
@@ -134,7 +133,8 @@ button:disabled {
   font-weight: 700;
 }
 
-.post-theme {
+.post-theme,
+.post-type {
   margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
@@ -144,6 +144,17 @@ button:disabled {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--muted);
+}
+
+.copy-feedback {
+  margin: 0;
+  min-height: 1.25em;
+  color: var(--success);
+  font-size: 0.9rem;
+}
+
+.copy-feedback.error {
+  color: var(--error);
 }
 
 @media (min-width: 768px) {
