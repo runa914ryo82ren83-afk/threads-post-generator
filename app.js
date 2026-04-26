@@ -163,30 +163,147 @@ function buildTreePosts({ slot, theme, mode, seed }) {
 
   const hook = slot.time === "6:27" ? "おはるナース☀️" : pickRandom(["ちょっと聞いてほしい。", "正直、これでかなり遠回りした。", "これ、昔のわたしに一番伝えたい。"], seed + 1);
 
-  const post1Lines = [
+  const post1Sections = [
     hook,
     p.readerPain,
     p.readerMisunderstanding,
-    `わたしもそうだった。${p.pastFailure}`,
+    "わたしもそうだった。",
+    p.pastFailure,
     "でも気づいた。",
     p.cliff,
   ];
 
-  const post2Lines = [
+  const post2Sections = [
     p.awareness,
-    `昔のわたしは、${p.pastFailure}`,
+    "昔のわたしは、",
+    p.pastFailure,
     p.concreteAction,
     "完璧じゃなくていい。",
     "同じように迷ってる読者は、まずここからで大丈夫。",
   ];
 
   const cta = getCtaByMode(mode, seed);
-  if (cta) post2Lines.push(cta, getLinkByMode(mode));
+  if (cta) post2Sections.push(cta, getLinkByMode(mode));
 
   return {
-    post1: post1Lines.join("\n\n"),
-    post2: post2Lines.join("\n\n"),
+    post1: formatRunursePost(post1Sections, 1),
+    post2: formatRunursePost(post2Sections, 2),
   };
+}
+
+function formatRunursePost(sections, postNumber) {
+  const formattedSections = sections
+    .map((section) => formatRunurseSection(section))
+    .filter(Boolean);
+
+  const withKeywordSpacing = applyKeywordSpacing(formattedSections.join("\n\n"));
+  const normalized = withKeywordSpacing.replace(/\n{3,}/g, "\n\n").trim();
+
+  if (postNumber === 1) {
+    return normalized.replace(/\n{2,}/g, "\n\n");
+  }
+
+  return normalized;
+}
+
+function formatRunurseSection(text) {
+  const source = (text || "").trim();
+  if (!source) return "";
+
+  const sentences = splitKeepingPunctuation(source, "。")
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  const lineGroups = sentences.map((sentence) => {
+    const commaSplit = splitKeepingPunctuation(sentence, "、").flatMap((piece) => splitLongLine(piece.trim()));
+    const lines = commaSplit.filter(Boolean);
+    return chunkArray(lines, 2).map((chunk) => chunk.join("\n")).join("\n\n");
+  });
+
+  return lineGroups.filter(Boolean).join("\n\n");
+}
+
+function splitKeepingPunctuation(text, mark) {
+  const escaped = mark.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text
+    .split(new RegExp(`(${escaped})`))
+    .reduce((acc, part) => {
+      if (!part) return acc;
+      if (part === mark && acc.length) {
+        acc[acc.length - 1] += mark;
+        return acc;
+      }
+      acc.push(part);
+      return acc;
+    }, []);
+}
+
+function splitLongLine(line, preferred = 18, min = 15, max = 22) {
+  const clean = line.trim();
+  if (!clean) return [];
+  if (clean.length <= max) return [clean];
+
+  const preferredBreaks = ["、", "。", "のに", "から", "けど", "ので", "して", "すると", "だった", "ます", "る", "た"];
+  const chunks = [];
+  let rest = clean;
+
+  while (rest.length > max) {
+    const breakIndex = findBreakIndex(rest, preferredBreaks, preferred, min, max);
+    if (breakIndex <= 0) break;
+    chunks.push(rest.slice(0, breakIndex).trim());
+    rest = rest.slice(breakIndex).trim();
+  }
+
+  if (rest) chunks.push(rest);
+  return chunks;
+}
+
+function findBreakIndex(text, candidates, preferred, min, max) {
+  let best = -1;
+  let bestDistance = Infinity;
+
+  for (let i = min; i <= Math.min(max, text.length - 1); i += 1) {
+    const left = text.slice(0, i);
+    const match = candidates.some((token) => left.endsWith(token));
+    if (!match) continue;
+    const distance = Math.abs(preferred - i);
+    if (distance < bestDistance) {
+      best = i;
+      bestDistance = distance;
+    }
+  }
+
+  if (best !== -1) return best;
+  return Math.min(max, text.length - 1);
+}
+
+function chunkArray(items, size) {
+  const result = [];
+  for (let i = 0; i < items.length; i += size) {
+    result.push(items.slice(i, i + size));
+  }
+  return result;
+}
+
+function applyKeywordSpacing(text) {
+  const keywords = ["でも", "正直", "わたしもそうだった", "昔のわたしは", "ここで気づいた"];
+  const lines = text.split("\n");
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (!line.trim()) continue;
+    if (!keywords.some((keyword) => line.includes(keyword))) continue;
+    if (i > 0 && lines[i - 1].trim()) {
+      lines.splice(i, 0, "");
+      i += 1;
+    }
+    if (i < lines.length - 1 && lines[i + 1].trim()) {
+      lines.splice(i + 1, 0, "");
+      i += 1;
+    }
+  }
+
+  return lines.join("\n");
 }
 
 function buildPerspective(theme, mode, seed) {
