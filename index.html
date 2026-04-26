@@ -18,12 +18,14 @@
           <label for="themeInput">今日のテーマ一覧</label>
           <textarea
             id="themeInput"
-            rows="6"
-            placeholder="例：note初心者が挫折する理由\n有料記事を出すのが怖い理由\nビューが伸びない人の共通点"
+            rows="8"
+            placeholder="空欄でもOK（デフォルト20テーマを自動利用）\n例：note初心者が挫折する理由\n有料記事を出すのが怖い理由"
           ></textarea>
         </div>
 
         <div class="actions">
+          <button id="fillRecommendedBtn" class="secondary">今日のおすすめテーマを入れる</button>
+          <button id="clearThemesBtn" class="secondary">テーマ一覧をクリア</button>
           <button id="generateBtn" class="primary">20セットを生成する</button>
           <button id="copyAllBtn" class="secondary" disabled>20セットをまとめてコピー</button>
         </div>
@@ -43,6 +45,7 @@
         <div class="post-header">
           <span class="post-number"></span>
         </div>
+        <p class="post-time"></p>
         <p class="post-theme"></p>
         <p class="post-type"></p>
 
