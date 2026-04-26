@@ -58,6 +58,8 @@ h2 {
 }
 
 textarea,
+input,
+select,
 button {
   font: inherit;
 }
@@ -69,6 +71,15 @@ textarea {
   background: #fff;
   width: 100%;
   resize: vertical;
+}
+
+input,
+select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  width: 100%;
 }
 
 .actions {

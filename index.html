@@ -15,12 +15,31 @@
 
       <section class="panel form-panel">
         <div class="field">
+          <label for="postMode">投稿モード</label>
+          <select id="postMode">
+            <option value="normal">通常投稿（リンクなし）</option>
+            <option value="direct">有料記事への案内</option>
+            <option value="indirect">固定記事への案内</option>
+          </select>
+        </div>
+
+        <div class="field">
           <label for="themeInput">今日のテーマ一覧</label>
           <textarea
             id="themeInput"
             rows="8"
             placeholder="空欄でもOK（デフォルト20テーマを自動利用）\n例：note初心者が挫折する理由\n有料記事を出すのが怖い理由"
           ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="paidArticleLink">有料記事リンク（初期値入り）</label>
+          <input id="paidArticleLink" type="url" />
+        </div>
+
+        <div class="field">
+          <label for="fixedArticleLink">固定記事リンク（初期値入り）</label>
+          <input id="fixedArticleLink" type="url" />
         </div>
 
         <div class="actions">

@@ -1,4 +1,6 @@
 const NG_WORDS_FALLBACK = ["絶対に稼げる", "今すぐ買って", "誰でも100%", "放置で月収100万", "知らないと損"];
+const DEFAULT_PAID_ARTICLE_LINK = "https://note.com/ru_nurse/n/n48303b5f6ddb";
+const DEFAULT_FIXED_ARTICLE_LINK = "https://note.com/runa_ai_vlog/n/nd39117f18cc0";
 
 const DEFAULT_THEMES = [
   "note初心者が挫折する理由",
@@ -51,7 +53,6 @@ const HOOK_CANDIDATES = [
   "ちょっと聞いてほしい",
   "これだけは言わせてください",
   "ちょっとだけいいですか",
-  "これ気づいてますか？",
   "ちょっと待ってください",
   "これ、先に言わせて",
   "ちょっと待って",
@@ -87,18 +88,18 @@ const TARGET_PHRASES = [
 ];
 
 const CLIFF_ENDINGS = [
-  "でも、本当に直すべき場所はそこじゃなかった。 1/2",
-  "わたしはずっと、ここを勘違いしてた。 1/2",
-  "売れない理由は、思ってたよりシンプルだった。 1/2",
-  "ここに気づくまで、かなり遠回りした。 1/2",
-  "正直、もっと早く知りたかった。 1/2",
-  "でも、ある日やっと原因が見えた。 1/2",
-  "これ、昔のわたしに一番言いたいこと。 1/2",
-  "実は、頑張る場所を間違えてただけだった。 1/2",
-  "この差に気づいた瞬間、noteの見え方が変わった。 1/2",
-  "答えは、努力の量じゃなかった。 1/2",
-  "ここを間違えると、どれだけ書いても苦しくなる。 1/2",
-  "わたしが3年遠回りした原因、これだった。 1/2",
+  "でも、本当に直すべき場所はそこじゃなかった。",
+  "わたしはずっと、ここを勘違いしてた。",
+  "売れない理由は、思ってたよりシンプルだった。",
+  "ここに気づくまで、かなり遠回りした。",
+  "正直、もっと早く知りたかった。",
+  "でも、ある日やっと原因が見えた。",
+  "これ、昔のわたしに一番言いたいこと。",
+  "実は、頑張る場所を間違えてただけだった。",
+  "この差に気づいた瞬間、noteの見え方が変わった。",
+  "答えは、努力の量じゃなかった。",
+  "ここを間違えると、どれだけ書いても苦しくなる。",
+  "わたしが3年遠回りした原因、これだった。",
 ];
 
 const APPEAL_PHRASES = [
@@ -110,7 +111,7 @@ const APPEAL_PHRASES = [
   "noteで結果出てない人へ",
   "自信なくて止まってる人へ",
   "今のまま続けていいのかなって悩んでる人へ",
-  "note初心者の人、これ気づいてほしい",
+  "note初心者の人へ",
   "頑張ってるのに売れない人、もったいないです",
 ];
 
@@ -118,7 +119,10 @@ const docsState = { ngWords: NG_WORDS_FALLBACK };
 const uiState = { treeSets: [] };
 
 const dom = {
+  postMode: document.getElementById("postMode"),
   themeInput: document.getElementById("themeInput"),
+  paidArticleLink: document.getElementById("paidArticleLink"),
+  fixedArticleLink: document.getElementById("fixedArticleLink"),
   fillRecommendedBtn: document.getElementById("fillRecommendedBtn"),
   clearThemesBtn: document.getElementById("clearThemesBtn"),
   generateBtn: document.getElementById("generateBtn"),
@@ -132,6 +136,8 @@ init();
 
 async function init() {
   await loadDocs();
+  dom.paidArticleLink.value = DEFAULT_PAID_ARTICLE_LINK;
+  dom.fixedArticleLink.value = DEFAULT_FIXED_ARTICLE_LINK;
 
   dom.fillRecommendedBtn.addEventListener("click", () => {
     dom.themeInput.value = DEFAULT_THEMES.join("\n");
@@ -144,7 +150,12 @@ async function init() {
   });
 
   dom.generateBtn.addEventListener("click", () => {
-    uiState.treeSets = generateTwentyTreeSets({ themesText: dom.themeInput.value });
+    uiState.treeSets = generateTwentyTreeSets({
+      themesText: dom.themeInput.value,
+      mode: dom.postMode.value,
+      paidArticleLink: dom.paidArticleLink.value.trim() || DEFAULT_PAID_ARTICLE_LINK,
+      fixedArticleLink: dom.fixedArticleLink.value.trim() || DEFAULT_FIXED_ARTICLE_LINK,
+    });
     renderTreeSets(uiState.treeSets);
     dom.copyAllBtn.disabled = uiState.treeSets.length === 0;
     showGlobalStatus(`${uiState.treeSets.length}件のツリー投稿を生成しました。`, true);
@@ -198,24 +209,33 @@ function parseThemeLines(themesText) {
   return themes.length ? themes : DEFAULT_THEMES;
 }
 
-function generateTwentyTreeSets({ themesText }) {
+function generateTwentyTreeSets({ themesText, mode, paidArticleLink, fixedArticleLink }) {
   const themes = parseThemeLines(themesText);
   return POST_SLOTS.map((slot, index) => {
     const number = index + 1;
     const theme = themes[index % themes.length];
-    const tree = buildTreePosts({ number, theme, slot, seed: Date.now() + index * 97 });
+    const tree = buildTreePosts({
+      number,
+      theme,
+      slot,
+      mode,
+      paidArticleLink,
+      fixedArticleLink,
+      seed: Date.now() + index * 97,
+    });
     return {
       number,
       time: slot.time,
       patternType: slot.type,
       theme,
+      modeLabel: getModeLabel(mode),
       post1: sanitizeText(tree.post1),
       post2: sanitizeText(tree.post2),
     };
   });
 }
 
-function buildTreePosts({ number, theme, slot, seed }) {
+function buildTreePosts({ number, theme, slot, mode, paidArticleLink, fixedArticleLink, seed }) {
   const hook =
     slot.time === "6:27"
       ? "おはるナース☀️"
@@ -223,7 +243,9 @@ function buildTreePosts({ number, theme, slot, seed }) {
 
   const target = pickRandom(TARGET_PHRASES, seed + 2);
   const cliff = pickRandom(CLIFF_ENDINGS, seed + 3);
-  const appeal = pickRandom(APPEAL_PHRASES, seed + 4);
+  const appeal = pickRandom(getAppealPhrasesByMode(mode), seed + 4);
+  const post2CloseLine = pickRandom(getCloseLinesByMode(mode), seed + 5);
+  const post2Link = getLinkForMode({ mode, paidArticleLink, fixedArticleLink });
 
   const post1Lines = [
     `${hook}`,
@@ -234,17 +256,26 @@ function buildTreePosts({ number, theme, slot, seed }) {
   ];
 
   const post2Lines = [
-    `答えは、${getTypeAnswer(slot.type, theme)}。`,
-    getTypeReason(slot.type),
-    getTypeAction(slot.type, theme),
-    `${getTypeClose(slot.type)}`,
-    `${appeal} 2/2`,
+    `答えは、${getTypeAnswer(slot.type, theme, mode)}。`,
+    getTypeReason(slot.type, mode),
+    getTypeAction(slot.type, theme, mode),
+    `${getTypeClose(slot.type, mode)}`,
+    `${appeal}`,
+    post2CloseLine,
   ];
+
+  if (post2Link) post2Lines.push(post2Link);
 
   return {
     post1: post1Lines.join("\n\n"),
     post2: post2Lines.join("\n\n"),
   };
+}
+
+function getModeLabel(mode) {
+  if (mode === "direct") return "有料記事への案内";
+  if (mode === "indirect") return "固定記事への案内";
+  return "通常投稿";
 }
 
 function getTypeLead(type, theme) {
@@ -263,7 +294,7 @@ function getTypeLead(type, theme) {
     "実績×気づき型": "note開始5日で初収益、19,800円記事、200記事以上で見えたことがある。",
     "固定記事への自然導線型": "迷う人ほど、読む順番を先に置いておくとラクになる。",
     "直誘導寄り": "必要な人には、深掘りした導線を最初から渡したほうが早い。",
-    "間接誘導型": "詳しい流れは別でまとめておくと、読み手の負担が減る。",
+    "間接誘導型": "詳しい流れは別でまとめておくと、読者の負担が減る。",
     "何者か開示型": "はじめましての人へ。わたしは看護師しながらnote副業を続けてる。",
     "共感＋背中押し型": "今日しんどかった人ほど、ここから軽く立て直せる。",
     本音型: "正直、わたしも不安がゼロの日なんてほぼない。",
@@ -272,7 +303,69 @@ function getTypeLead(type, theme) {
   return map[type] || `${theme}でつまずく人は多い。`;
 }
 
-function getTypeAnswer(type, theme) {
+function getAppealPhrasesByMode(mode) {
+  if (mode === "direct") {
+    return [
+      "100円・300円のループから抜けたい人へ。",
+      "低単価の記事を量産して疲れた人へ。",
+      "高単価にしたいのに怖くて止まってる人へ。",
+      "無料記事に全部書いてしまう人へ。",
+      "セールス感を出さずに売れる導線を作りたい人へ。",
+      "文章力がないから売れないと思っていた人へ。",
+      "自分の経験に価値がないと思っていた人へ。",
+      "noteで月数万円を目指したい人へ。",
+    ];
+  }
+
+  if (mode === "indirect") {
+    return [
+      "努力してるのに売れないと悩んでる人へ。",
+      "毎日投稿してるのに反応がなくて苦しい人へ。",
+      "無料記事を有益にしてるのに売れない人へ。",
+      "売れない原因がわからず遠回りしてる人へ。",
+      "頑張る方向を見直したい人へ。",
+      "理想と現実のギャップが作れず悩んでる人へ。",
+    ];
+  }
+
+  return APPEAL_PHRASES;
+}
+
+function getCloseLinesByMode(mode) {
+  if (mode === "direct") {
+    return [
+      "低単価の記事から抜け出したい人だけ、ここにまとめてあります👇",
+      "セールスなしで高単価記事を売るための文章の並べ方を、ここにまとめました👇",
+      "わたしが遠回りして見つけた「売れる文章の並べ方」はここに置いてあります👇",
+      "本気で今の状況を変えたい人だけ読んでください👇",
+    ];
+  }
+
+  if (mode === "indirect") {
+    return [
+      "わたしが遠回りして気づいた「あるルール」は、固定にまとめています👇",
+      "同じように迷ってる人は、まず固定から読んでみてください👇",
+      "売れない原因を整理した記事を、固定に置いてあります👇",
+      "noteで遠回りしたくない人に向けて、固定にまとめました👇",
+    ];
+  }
+
+  return ["必要な人にだけ届けばうれしいです。"];
+}
+
+function getLinkForMode({ mode, paidArticleLink, fixedArticleLink }) {
+  if (mode === "direct") return paidArticleLink;
+  if (mode === "indirect") return fixedArticleLink;
+  return "";
+}
+
+function getTypeAnswer(type, theme, mode) {
+  if (mode === "direct") {
+    return "売れない原因は文章力や実績不足じゃなく、売れる順番で文章を並べていないこと";
+  }
+  if (mode === "indirect") {
+    return "売れない原因は努力不足じゃなく、努力の方向がズレていたこと";
+  }
   if (type === "黄金の型") return `売れる人は「悩み→理由→次の一歩」の順で書いて、売れない人は情報を先に並べること`;
   if (type === "固定記事への自然導線型") return `${theme}の前に、プロフィール固定記事で読む順番を示すこと`;
   if (type === "実績×気づき型") return `実績を先に誇るより、失敗と気づきを先に開示すること`;
@@ -281,19 +374,33 @@ function getTypeAnswer(type, theme) {
   return `${theme}で悩む相手を1人に絞って、1投稿目で感情、2投稿目で解決を出すこと`;
 }
 
-function getTypeReason(type) {
+function getTypeReason(type, mode) {
+  if (mode === "direct") {
+    return "無料記事にノウハウを全部詰め込むと、読者は満足してしまって次に進まない。理想と現実のギャップを順番で見せると必要な人だけが動く。";
+  }
+  if (mode === "indirect") {
+    return "毎日投稿しても売れない時は、努力の量より方向の見直しが必要。無料記事で少し物足りなさを残すと、読者が次の行動を選びやすくなる。";
+  }
   if (type === "朝の感情・共感型") return "朝は判断力が散りやすい。だから短く、やさしく、ひとつに絞るほうが届く。";
   if (type === "問いかけ型") return "問いがあると、読む人の頭が動く。そこで初めて次の一文が入る。";
-  return "読み手は情報量より、今の自分に必要かどうかで読むか決めてる。";
+  return "読者は情報量より、今の自分に必要かどうかで読むか決めてる。";
 }
 
-function getTypeAction(type, theme) {
+function getTypeAction(type, theme, mode) {
+  if (mode === "direct") {
+    return "わたしは低単価を量産して消耗したあと、無料記事→固定→有料記事の順に導線を整えたら、押し売りせずに必要な人だけが進んでくれるようになった。";
+  }
+  if (mode === "indirect") {
+    return "わたしも遠回りして、無料記事で読者を満足させすぎていたと気づいた。まず原因を整理してから順番を変えたら、反応が少しずつ変わった。";
+  }
   if (type === "小さな行動提案型") return `今日やることは1つだけ。${theme}について「誰の悩みか」を1行で先に書く。`;
   if (type === "締め投稿型") return "明日の下書きは、冒頭1行だけ先にメモして寝る。それだけで継続しやすい。";
   return `次の投稿では、${theme}の答えを1つだけに絞って書く。`;
 }
 
-function getTypeClose(type) {
+function getTypeClose(type, mode) {
+  if (mode === "direct") return "セールス感を出さなくても、必要な人には届く導線は作れる。";
+  if (mode === "indirect") return "いきなり売り込むより、まず原因に気づくと遠回りが減る。";
   if (type === "朝の感情・共感型") return "今日もペースは人それぞれでいい。";
   if (type === "締め投稿型") return "今日もおつかれさま。焦らず積み上げよう。";
   return "押し売りしなくても、必要な人にはちゃんと届く。";
@@ -337,7 +444,7 @@ function renderTreeSets(treeSets) {
     numberNode.textContent = `No.${treeSet.number}`;
     timeNode.textContent = `投稿時間：${treeSet.time}`;
     themeNode.textContent = `テーマ：${treeSet.theme}`;
-    typeNode.textContent = `型：${treeSet.patternType}`;
+    typeNode.textContent = `型：${treeSet.patternType} / モード：${treeSet.modeLabel}`;
     post1Node.value = treeSet.post1;
     post2Node.value = treeSet.post2;
 
@@ -376,7 +483,7 @@ function renderTreeSets(treeSets) {
 }
 
 function formatTreeSetText(treeSet) {
-  return `【${treeSet.time}】\nNo.${treeSet.number}\nテーマ：${treeSet.theme}\n型：${treeSet.patternType}\n\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
+  return `【${treeSet.time}】\nNo.${treeSet.number}\nテーマ：${treeSet.theme}\n型：${treeSet.patternType}\nモード：${treeSet.modeLabel}\n\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
 }
 
 function collectAllTreeSetsText(treeSets) {
