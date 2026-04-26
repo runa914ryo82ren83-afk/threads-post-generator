@@ -1,6 +1,6 @@
 const NG_WORDS_FALLBACK = ["絶対に稼げる", "今すぐ買って", "誰でも100%", "放置で月収100万", "知らないと損"];
-const DEFAULT_PAID_ARTICLE_LINK = "https://note.com/ru_nurse/n/n48303b5f6ddb";
-const DEFAULT_FIXED_ARTICLE_LINK = "https://note.com/runa_ai_vlog/n/nd39117f18cc0";
+const PAID_ARTICLE_LINK = "https://note.com/ru_nurse/n/n48303b5f6ddb";
+const FIXED_ARTICLE_LINK = "https://note.com/runa_ai_vlog/n/nd39117f18cc0";
 
 const DEFAULT_THEMES = [
   "note初心者が挫折する理由",
@@ -48,81 +48,11 @@ const POST_SLOTS = [
   { time: "22:47", type: "締め投稿型" },
 ];
 
-const HOOK_CANDIDATES = [
-  "あの、ちょっといいですか",
-  "ちょっと聞いてほしい",
-  "これだけは言わせてください",
-  "ちょっとだけいいですか",
-  "ちょっと待ってください",
-  "これ、先に言わせて",
-  "ちょっと待って",
-  "それ、もったいないです",
-  "それ、遠回りかもです",
-  "それ、ズレてるかもです",
-  "それ、しんどくなるやつです",
-  "それ、効率よくないです",
-  "それ、わたしも失敗しました",
-  "それ、続けると変わらないです",
-  "それ、気づかないと損です",
-  "それ、時間ムダにします",
-  "ちょっと危ないです",
-  "それ、非効率かもです",
-  "そのままだと止まります",
-  "それ、結果出にくいです",
-  "それ、やってる人多いです",
-];
-
-const TARGET_PHRASES = [
-  "頑張ってnote書いてるのに、ビューが伸びなくて悩んでる人",
-  "note毎日投稿してるのに、全然反応がない人",
-  "note頑張ってるのに、スキが増えない人",
-  "これでいいのかなって思いながらnote書いてる人",
-  "noteがまだ売れたことがない人",
-  "note頑張ってるのに、ずっと0円のままの人",
-  "自分には有料記事にできることないと思ってる人",
-  "自分の経験に価値ないと思ってる人",
-  "これでお金もらっていいのかなって思ってる人",
-  "自信なくて有料記事出せない人",
-  "自分の記事に自信なくて止まってる人",
-  "有料にしたいけど怖くて出せない人",
-];
-
-const CLIFF_ENDINGS = [
-  "でも、本当に直すべき場所はそこじゃなかった。",
-  "わたしはずっと、ここを勘違いしてた。",
-  "売れない理由は、思ってたよりシンプルだった。",
-  "ここに気づくまで、かなり遠回りした。",
-  "正直、もっと早く知りたかった。",
-  "でも、ある日やっと原因が見えた。",
-  "これ、昔のわたしに一番言いたいこと。",
-  "実は、頑張る場所を間違えてただけだった。",
-  "この差に気づいた瞬間、noteの見え方が変わった。",
-  "答えは、努力の量じゃなかった。",
-  "ここを間違えると、どれだけ書いても苦しくなる。",
-  "わたしが3年遠回りした原因、これだった。",
-];
-
-const APPEAL_PHRASES = [
-  "これ、noteで悩んでる人に読んでほしい",
-  "note初心者さんへ",
-  "有料記事が怖い人に届いてほしい",
-  "ビューが伸びなくて悩んでる人に向けて書いてます",
-  "これ、0→1で止まってる人に届いてほしいです",
-  "noteで結果出てない人へ",
-  "自信なくて止まってる人へ",
-  "今のまま続けていいのかなって悩んでる人へ",
-  "note初心者の人へ",
-  "頑張ってるのに売れない人、もったいないです",
-];
-
 const docsState = { ngWords: NG_WORDS_FALLBACK };
 const uiState = { treeSets: [] };
 
 const dom = {
-  postMode: document.getElementById("postMode"),
   themeInput: document.getElementById("themeInput"),
-  paidArticleLink: document.getElementById("paidArticleLink"),
-  fixedArticleLink: document.getElementById("fixedArticleLink"),
   fillRecommendedBtn: document.getElementById("fillRecommendedBtn"),
   clearThemesBtn: document.getElementById("clearThemesBtn"),
   generateBtn: document.getElementById("generateBtn"),
@@ -136,8 +66,6 @@ init();
 
 async function init() {
   await loadDocs();
-  dom.paidArticleLink.value = DEFAULT_PAID_ARTICLE_LINK;
-  dom.fixedArticleLink.value = DEFAULT_FIXED_ARTICLE_LINK;
 
   dom.fillRecommendedBtn.addEventListener("click", () => {
     dom.themeInput.value = DEFAULT_THEMES.join("\n");
@@ -150,12 +78,7 @@ async function init() {
   });
 
   dom.generateBtn.addEventListener("click", () => {
-    uiState.treeSets = generateTwentyTreeSets({
-      themesText: dom.themeInput.value,
-      mode: dom.postMode.value,
-      paidArticleLink: dom.paidArticleLink.value.trim() || DEFAULT_PAID_ARTICLE_LINK,
-      fixedArticleLink: dom.fixedArticleLink.value.trim() || DEFAULT_FIXED_ARTICLE_LINK,
-    });
+    uiState.treeSets = generateTwentyTreeSets(dom.themeInput.value);
     renderTreeSets(uiState.treeSets);
     dom.copyAllBtn.disabled = uiState.treeSets.length === 0;
     showGlobalStatus(`${uiState.treeSets.length}件のツリー投稿を生成しました。`, true);
@@ -209,62 +132,56 @@ function parseThemeLines(themesText) {
   return themes.length ? themes : DEFAULT_THEMES;
 }
 
-function generateTwentyTreeSets({ themesText, mode, paidArticleLink, fixedArticleLink }) {
+function generateTwentyTreeSets(themesText) {
   const themes = parseThemeLines(themesText);
+
   return POST_SLOTS.map((slot, index) => {
     const number = index + 1;
     const theme = themes[index % themes.length];
-    const tree = buildTreePosts({
-      number,
-      theme,
-      slot,
-      mode,
-      paidArticleLink,
-      fixedArticleLink,
-      seed: Date.now() + index * 97,
-    });
+    const mode = getAutoMode(slot.time);
+    const tree = buildTreePosts({ slot, theme, mode, seed: Date.now() + index * 113 });
+
     return {
       number,
       time: slot.time,
       patternType: slot.type,
       theme,
-      modeLabel: getModeLabel(mode),
       post1: sanitizeText(tree.post1),
       post2: sanitizeText(tree.post2),
     };
   });
 }
 
-function buildTreePosts({ number, theme, slot, mode, paidArticleLink, fixedArticleLink, seed }) {
-  const hook =
-    slot.time === "6:27"
-      ? "おはるナース☀️"
-      : pickRandom(HOOK_CANDIDATES, seed + 1);
+function getAutoMode(time) {
+  if (["7:37", "20:07"].includes(time)) return "direct";
+  if (["12:13", "20:39"].includes(time)) return "indirect";
+  return "normal";
+}
 
-  const target = pickRandom(TARGET_PHRASES, seed + 2);
-  const cliff = pickRandom(CLIFF_ENDINGS, seed + 3);
-  const appeal = pickRandom(getAppealPhrasesByMode(mode), seed + 4);
-  const post2CloseLine = pickRandom(getCloseLinesByMode(mode), seed + 5);
-  const post2Link = getLinkForMode({ mode, paidArticleLink, fixedArticleLink });
+function buildTreePosts({ slot, theme, mode, seed }) {
+  const p = buildPerspective(theme, mode, seed);
+
+  const hook = slot.time === "6:27" ? "おはるナース☀️" : pickRandom(["ちょっと聞いてほしい。", "正直、これでかなり遠回りした。", "これ、昔のわたしに一番伝えたい。"], seed + 1);
 
   const post1Lines = [
-    `${hook}`,
-    `${target}へ。`,
-    `${theme}で止まるの、わたしも何回もあった。`,
-    getTypeLead(slot.type, theme),
-    cliff,
+    hook,
+    p.readerPain,
+    p.readerMisunderstanding,
+    `わたしもそうだった。${p.pastFailure}`,
+    "でも気づいた。",
+    p.cliff,
   ];
 
   const post2Lines = [
-    `答えは、${getTypeAnswer(slot.type, theme, mode)}。`,
-    getTypeReason(slot.type, mode),
-    getTypeAction(slot.type, theme, mode),
-    `${getTypeClose(slot.type, mode)}`,
-    `${appeal}`,
-    post2CloseLine,
+    p.awareness,
+    `昔のわたしは、${p.pastFailure}`,
+    p.concreteAction,
+    "完璧じゃなくていい。",
+    "同じように迷ってる読者は、まずここからで大丈夫。",
   ];
 
-  if (post2Link) post2Lines.push(post2Link);
+  const cta = getCtaByMode(mode, seed);
+  if (cta) post2Lines.push(cta, getLinkByMode(mode));
 
   return {
     post1: post1Lines.join("\n\n"),
@@ -272,138 +189,84 @@ function buildTreePosts({ number, theme, slot, mode, paidArticleLink, fixedArtic
   };
 }
 
-function getModeLabel(mode) {
-  if (mode === "direct") return "有料記事への案内";
-  if (mode === "indirect") return "固定記事への案内";
-  return "通常投稿";
-}
+function buildPerspective(theme, mode, seed) {
+  const normalPains = [
+    "毎日投稿してるのに、反応が増えなくて心が折れそうになる。",
+    "時間を使って書いてるのに、売上につながらなくて不安になる。",
+    "頑張ってるのに変化が見えなくて、手が止まりそうになる。",
+  ];
+  const normalMisunderstandings = [
+    "記事数を増やせば、いつか自然に売れると思ってた。",
+    "文章を長くすれば価値が伝わると信じてた。",
+    "知識を全部書けば、読者に喜ばれると思ってた。",
+  ];
 
-function getTypeLead(type, theme) {
-  const map = {
-    "朝の感情・共感型": "朝は焦るよね。今日も頑張りたいのに、頭がまとまらない。",
-    注意喚起型: `${theme}、そのまま続けると消耗しやすい。`,
-    "誰こいつ型": "わたしは看護師しながら副業で失敗を重ねて、やっと0→1を越えた。",
-    勘違い指摘型: "がんばってる人ほど、やさしい勘違いで遠回りしやすい。",
-    問いかけ型: "いま、どこで一番つまずいてる？",
-    共感型: "昼休みにこれ読んでる人、多分ちょっと疲れてるよね。",
-    "小さな行動提案型": "今日は大きく変えなくていい。1つだけでいい。",
-    失敗談型: "昔のわたしは、時間だけ使って結果が出なかった。",
-    気づき共有型: "夕方って、急に頭がクリアになる瞬間がある。",
-    価値観共有型: "わたしは、完璧さより続けられる設計を大事にしてる。",
-    "黄金の型": "続く人と止まる人の差って、才能より順番だった。",
-    "実績×気づき型": "note開始5日で初収益、19,800円記事、200記事以上で見えたことがある。",
-    "固定記事への自然導線型": "迷う人ほど、読む順番を先に置いておくとラクになる。",
-    "直誘導寄り": "必要な人には、深掘りした導線を最初から渡したほうが早い。",
-    "間接誘導型": "詳しい流れは別でまとめておくと、読者の負担が減る。",
-    "何者か開示型": "はじめましての人へ。わたしは看護師しながらnote副業を続けてる。",
-    "共感＋背中押し型": "今日しんどかった人ほど、ここから軽く立て直せる。",
-    本音型: "正直、わたしも不安がゼロの日なんてほぼない。",
-    "締め投稿型": "今日できたことが小さくても、それは前進。",
+  const directPains = [
+    "300円の記事は売れるのに、高単価にすると怖くて出せない。",
+    "無料記事に全部書いてしまって、有料に残す内容がなくなる。",
+    "セールス感が怖くて、案内文を書く手が止まる。",
+  ];
+  const directMisunderstandings = [
+    "文章力が足りないから売れないと思ってた。",
+    "価格を下げれば読者は増えると思ってた。",
+    "有料にすること自体が悪いことだと思ってた。",
+  ];
+
+  const indirectPains = [
+    "努力してるのに売れなくて、何を変えればいいか分からなくなる。",
+    "無料記事を丁寧に書いてるのに、次の行動につながらない。",
+    "毎日続けてるのに反応が薄くて、方向が合ってるか不安になる。",
+  ];
+  const indirectMisunderstandings = [
+    "頑張る量を増やせば突破できると思ってた。",
+    "有益なら読者は自然に進んでくれると思ってた。",
+    "全部親切に書くほど売れると信じてた。",
+  ];
+
+  const selectedPains = mode === "direct" ? directPains : mode === "indirect" ? indirectPains : normalPains;
+  const selectedMis = mode === "direct" ? directMisunderstandings : mode === "indirect" ? indirectMisunderstandings : normalMisunderstandings;
+
+  return {
+    readerPain: pickRandom(selectedPains, seed + 2),
+    readerMisunderstanding: pickRandom(selectedMis, seed + 3),
+    pastFailure: `テーマを見たまま書き始めて、話が散らかってしまってた。`,
+    cliff: pickRandom([
+      "努力不足じゃなかった。見直す場所が違った。",
+      "止まる原因は根性じゃなくて、書く前の設計だった。",
+      "答えはすぐ近くにあったのに、わたしはずっと外してた。",
+    ], seed + 4),
+    awareness: pickRandom([
+      "見直す場所は、記事数じゃなくて『何につなげる投稿なのか』だった。",
+      "わたしが変えたのは、書く量じゃなくて投稿の順番だった。",
+      "遠回りを止めたきっかけは、読者の次の一歩を先に決めたことだった。",
+    ], seed + 5),
+    concreteAction: `今日はテーマ名をそのまま書かずに、
+「読者の悩み」「勘違い」「わたしの失敗」「気づき」の4行メモを先に作ってから投稿する。`,
   };
-  return map[type] || `${theme}でつまずく人は多い。`;
 }
 
-function getAppealPhrasesByMode(mode) {
+function getCtaByMode(mode, seed) {
   if (mode === "direct") {
-    return [
-      "100円・300円のループから抜けたい人へ。",
-      "低単価の記事を量産して疲れた人へ。",
-      "高単価にしたいのに怖くて止まってる人へ。",
-      "無料記事に全部書いてしまう人へ。",
-      "セールス感を出さずに売れる導線を作りたい人へ。",
-      "文章力がないから売れないと思っていた人へ。",
-      "自分の経験に価値がないと思っていた人へ。",
-      "noteで月数万円を目指したい人へ。",
-    ];
+    return pickRandom([
+      "低単価の記事から抜け出したくて、わたしが遠回りして見つけた「売れる文章の並べ方」はここにまとめました👇",
+      "高単価に進むのが怖かったわたしが、少しずつ変えられた流れをここに残しました👇",
+    ], seed + 6);
   }
 
   if (mode === "indirect") {
-    return [
-      "努力してるのに売れないと悩んでる人へ。",
-      "毎日投稿してるのに反応がなくて苦しい人へ。",
-      "無料記事を有益にしてるのに売れない人へ。",
-      "売れない原因がわからず遠回りしてる人へ。",
-      "頑張る方向を見直したい人へ。",
-      "理想と現実のギャップが作れず悩んでる人へ。",
-    ];
+    return pickRandom([
+      "わたしが遠回りして気づいた売れるnoteの「あるルール」は、固定記事にまとめています👇",
+      "努力の方向を整えるために、最初に読んでほしい内容を固定記事に置いています👇",
+    ], seed + 7);
   }
 
-  return APPEAL_PHRASES;
-}
-
-function getCloseLinesByMode(mode) {
-  if (mode === "direct") {
-    return [
-      "低単価の記事から抜け出したい人だけ、ここにまとめてあります👇",
-      "セールスなしで高単価記事を売るための文章の並べ方を、ここにまとめました👇",
-      "わたしが遠回りして見つけた「売れる文章の並べ方」はここに置いてあります👇",
-      "本気で今の状況を変えたい人だけ読んでください👇",
-    ];
-  }
-
-  if (mode === "indirect") {
-    return [
-      "わたしが遠回りして気づいた「あるルール」は、固定にまとめています👇",
-      "同じように迷ってる人は、まず固定から読んでみてください👇",
-      "売れない原因を整理した記事を、固定に置いてあります👇",
-      "noteで遠回りしたくない人に向けて、固定にまとめました👇",
-    ];
-  }
-
-  return ["必要な人にだけ届けばうれしいです。"];
-}
-
-function getLinkForMode({ mode, paidArticleLink, fixedArticleLink }) {
-  if (mode === "direct") return paidArticleLink;
-  if (mode === "indirect") return fixedArticleLink;
   return "";
 }
 
-function getTypeAnswer(type, theme, mode) {
-  if (mode === "direct") {
-    return "売れない原因は文章力や実績不足じゃなく、売れる順番で文章を並べていないこと";
-  }
-  if (mode === "indirect") {
-    return "売れない原因は努力不足じゃなく、努力の方向がズレていたこと";
-  }
-  if (type === "黄金の型") return `売れる人は「悩み→理由→次の一歩」の順で書いて、売れない人は情報を先に並べること`;
-  if (type === "固定記事への自然導線型") return `${theme}の前に、プロフィール固定記事で読む順番を示すこと`;
-  if (type === "実績×気づき型") return `実績を先に誇るより、失敗と気づきを先に開示すること`;
-  if (type === "直誘導寄り") return `${theme}の解決策を2投稿目で出して、必要な人にだけ次の導線を渡すこと`;
-  if (type === "間接誘導型") return `本文で全部を詰め込まず、詳しくまとめた場所を自然に示すこと`;
-  return `${theme}で悩む相手を1人に絞って、1投稿目で感情、2投稿目で解決を出すこと`;
-}
-
-function getTypeReason(type, mode) {
-  if (mode === "direct") {
-    return "無料記事にノウハウを全部詰め込むと、読者は満足してしまって次に進まない。理想と現実のギャップを順番で見せると必要な人だけが動く。";
-  }
-  if (mode === "indirect") {
-    return "毎日投稿しても売れない時は、努力の量より方向の見直しが必要。無料記事で少し物足りなさを残すと、読者が次の行動を選びやすくなる。";
-  }
-  if (type === "朝の感情・共感型") return "朝は判断力が散りやすい。だから短く、やさしく、ひとつに絞るほうが届く。";
-  if (type === "問いかけ型") return "問いがあると、読む人の頭が動く。そこで初めて次の一文が入る。";
-  return "読者は情報量より、今の自分に必要かどうかで読むか決めてる。";
-}
-
-function getTypeAction(type, theme, mode) {
-  if (mode === "direct") {
-    return "わたしは低単価を量産して消耗したあと、無料記事→固定→有料記事の順に導線を整えたら、押し売りせずに必要な人だけが進んでくれるようになった。";
-  }
-  if (mode === "indirect") {
-    return "わたしも遠回りして、無料記事で読者を満足させすぎていたと気づいた。まず原因を整理してから順番を変えたら、反応が少しずつ変わった。";
-  }
-  if (type === "小さな行動提案型") return `今日やることは1つだけ。${theme}について「誰の悩みか」を1行で先に書く。`;
-  if (type === "締め投稿型") return "明日の下書きは、冒頭1行だけ先にメモして寝る。それだけで継続しやすい。";
-  return `次の投稿では、${theme}の答えを1つだけに絞って書く。`;
-}
-
-function getTypeClose(type, mode) {
-  if (mode === "direct") return "セールス感を出さなくても、必要な人には届く導線は作れる。";
-  if (mode === "indirect") return "いきなり売り込むより、まず原因に気づくと遠回りが減る。";
-  if (type === "朝の感情・共感型") return "今日もペースは人それぞれでいい。";
-  if (type === "締め投稿型") return "今日もおつかれさま。焦らず積み上げよう。";
-  return "押し売りしなくても、必要な人にはちゃんと届く。";
+function getLinkByMode(mode) {
+  if (mode === "direct") return PAID_ARTICLE_LINK;
+  if (mode === "indirect") return FIXED_ARTICLE_LINK;
+  return "";
 }
 
 function pickRandom(list, seed) {
@@ -412,6 +275,7 @@ function pickRandom(list, seed) {
 
 function sanitizeText(text) {
   let next = text.replace(/\b私\b/g, "わたし").replace(/\n{3,}/g, "\n\n").trim();
+  next = next.replace(/読み手/g, "読者");
   next = sanitizeNgWords(next, docsState.ngWords);
   return next;
 }
@@ -444,38 +308,20 @@ function renderTreeSets(treeSets) {
     numberNode.textContent = `No.${treeSet.number}`;
     timeNode.textContent = `投稿時間：${treeSet.time}`;
     themeNode.textContent = `テーマ：${treeSet.theme}`;
-    typeNode.textContent = `型：${treeSet.patternType} / モード：${treeSet.modeLabel}`;
+    typeNode.textContent = `型：${treeSet.patternType}`;
     post1Node.value = treeSet.post1;
     post2Node.value = treeSet.post2;
 
     copyPost1Btn.addEventListener("click", async () => {
-      await handleCopyAction({
-        button: copyPost1Btn,
-        text: treeSet.post1,
-        successMessage: `No.${treeSet.number} の投稿1をコピーしました。`,
-        failMessage: "コピーできませんでした。手動で選択してください。",
-        feedbackNode,
-      });
+      await handleCopyAction({ button: copyPost1Btn, text: treeSet.post1, successMessage: `No.${treeSet.number} の投稿1をコピーしました。`, failMessage: "コピーできませんでした。手動で選択してください。", feedbackNode });
     });
 
     copyPost2Btn.addEventListener("click", async () => {
-      await handleCopyAction({
-        button: copyPost2Btn,
-        text: treeSet.post2,
-        successMessage: `No.${treeSet.number} の投稿2をコピーしました。`,
-        failMessage: "コピーできませんでした。手動で選択してください。",
-        feedbackNode,
-      });
+      await handleCopyAction({ button: copyPost2Btn, text: treeSet.post2, successMessage: `No.${treeSet.number} の投稿2をコピーしました。`, failMessage: "コピーできませんでした。手動で選択してください。", feedbackNode });
     });
 
     copyTreeBtn.addEventListener("click", async () => {
-      await handleCopyAction({
-        button: copyTreeBtn,
-        text: formatTreeSetText(treeSet),
-        successMessage: `No.${treeSet.number} のツリーをコピーしました。`,
-        failMessage: "コピーできませんでした。手動で選択してください。",
-        feedbackNode,
-      });
+      await handleCopyAction({ button: copyTreeBtn, text: formatTreeSetText(treeSet), successMessage: `No.${treeSet.number} のツリーをコピーしました。`, failMessage: "コピーできませんでした。手動で選択してください。", feedbackNode });
     });
 
     dom.results.append(node);
@@ -483,7 +329,7 @@ function renderTreeSets(treeSets) {
 }
 
 function formatTreeSetText(treeSet) {
-  return `【${treeSet.time}】\nNo.${treeSet.number}\nテーマ：${treeSet.theme}\n型：${treeSet.patternType}\nモード：${treeSet.modeLabel}\n\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
+  return `【${treeSet.time}】\nNo.${treeSet.number}\nテーマ：${treeSet.theme}\n型：${treeSet.patternType}\n\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
 }
 
 function collectAllTreeSetsText(treeSets) {
