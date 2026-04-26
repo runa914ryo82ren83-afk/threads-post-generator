@@ -274,20 +274,29 @@ function parseThemeLines(themesText) {
 
 function generateTwentyTreeSets(themesText) {
   const themes = parseThemeLines(themesText);
+  const empathyPhraseIndexes = pickDistinctIndexes(POST_SLOTS.length, 4, Date.now() + 77);
 
   return POST_SLOTS.map((slot, index) => {
     const number = index + 1;
     const theme = themes[index % themes.length];
     const mode = getAutoMode(slot.time);
-    const tree = buildTreePosts({ slot, theme, mode, seed: Date.now() + index * 113 });
+    const tree = buildTreePosts({
+      slot,
+      theme,
+      mode,
+      seed: Date.now() + index * 113,
+      useClassicEmpathyLine: empathyPhraseIndexes.has(index),
+    });
 
     return {
       number,
       time: slot.time,
       patternType: slot.type,
       theme,
-      post1: sanitizeText(tree.post1),
-      post2: sanitizeText(tree.post2),
+      ...finalizeTreeSetText({
+        post1: sanitizeText(tree.post1),
+        post2: sanitizeText(tree.post2),
+      }),
     };
   });
 }
@@ -384,28 +393,38 @@ function getAutoMode(time) {
   return "normal";
 }
 
-function buildTreePosts({ slot, theme, mode, seed }) {
+function buildTreePosts({ slot, theme, mode, seed, useClassicEmpathyLine }) {
   const p = buildPerspective(theme, mode, seed);
 
   const hook = slot.time === "6:27" ? "おはるナース☀️" : pickRandom(["ちょっと聞いてほしい。", "正直、これでかなり遠回りした。", "これ、昔のわたしに一番伝えたい。"], seed + 1);
+  const selfDisclosureLine = useClassicEmpathyLine
+    ? "わたしもそうだった。"
+    : pickRandom([
+      "昔のわたしは、ここで遠回りしてた。",
+      "少し前のわたしは、ここで悩んでた。",
+      "わたしも、似たようなことで何回も止まった。",
+      "わたしはここでかなり時間を使った。",
+      "正直、最初は全然わかってなかった。",
+      "前は、これが原因だと思ってなかった。",
+      "今なら、ここを先に見直すと思う。",
+    ], seed + 12);
 
   const post1Sections = [
     hook,
     p.readerPain,
     p.readerMisunderstanding,
-    "わたしもそうだった。",
+    selfDisclosureLine,
     p.pastFailure,
-    "でも気づいた。",
     p.cliff,
   ];
 
   const post2Sections = [
     p.awareness,
-    "昔のわたしは、",
-    p.pastFailure,
+    p.secondPostFailure,
+    p.whyImportant,
     p.concreteAction,
     "完璧じゃなくていい。",
-    "同じように迷ってる読者は、まずここからで大丈夫。",
+    p.gentleClose,
   ];
 
   const cta = getCtaByMode(mode, seed);
@@ -512,7 +531,7 @@ function chunkArray(items, size) {
 }
 
 function applyKeywordSpacing(text) {
-  const keywords = ["でも", "正直", "わたしもそうだった", "昔のわたしは", "ここで気づいた"];
+  const keywords = ["でも", "正直", "わたしもそうだった", "昔のわたしは", "少し前のわたしは", "今ならわかる"];
   const lines = text.split("\n");
 
   for (let i = 0; i < lines.length; i += 1) {
@@ -541,7 +560,7 @@ function buildPerspective(theme, mode, seed) {
   const normalMisunderstandings = [
     "記事数を増やせば、いつか自然に売れると思ってた。",
     "文章を長くすれば価値が伝わると信じてた。",
-    "知識を全部書けば、読者に喜ばれると思ってた。",
+    "知識を全部書けば、喜ばれると思ってた。",
   ];
 
   const directPains = [
@@ -551,7 +570,7 @@ function buildPerspective(theme, mode, seed) {
   ];
   const directMisunderstandings = [
     "文章力が足りないから売れないと思ってた。",
-    "価格を下げれば読者は増えると思ってた。",
+    "価格を下げれば反応は増えると思ってた。",
     "有料にすること自体が悪いことだと思ってた。",
   ];
 
@@ -562,7 +581,7 @@ function buildPerspective(theme, mode, seed) {
   ];
   const indirectMisunderstandings = [
     "頑張る量を増やせば突破できると思ってた。",
-    "有益なら読者は自然に進んでくれると思ってた。",
+    "有益なら自然に次へ進んでくれると思ってた。",
     "全部親切に書くほど売れると信じてた。",
   ];
 
@@ -572,20 +591,56 @@ function buildPerspective(theme, mode, seed) {
   return {
     readerPain: pickRandom(selectedPains, seed + 2),
     readerMisunderstanding: pickRandom(selectedMis, seed + 3),
-    pastFailure: `テーマを見たまま書き始めて、話が散らかってしまってた。`,
+    pastFailure: pickRandom([
+      "その日その日で、なんとなく書いてた。",
+      "思いついたまま書いてたら、伝えたいことがぼやけてた。",
+      "書くことだけ決めて、ゴールを決めてなかった。",
+      "とりあえず記事を増やせばいいと思ってた。",
+    ], seed + 10),
     cliff: pickRandom([
-      "努力不足じゃなかった。見直す場所が違った。",
-      "止まる原因は根性じゃなくて、書く前の設計だった。",
-      "答えはすぐ近くにあったのに、わたしはずっと外してた。",
+      "努力してるのに進まない時は、やり方の確認が必要だった。",
+      "止まる原因は根性じゃなくて、書く前の準備不足だった。",
+      "前に進めないのは、見直しポイントがズレてたからだった。",
     ], seed + 4),
     awareness: pickRandom([
-      "見直す場所は、記事数じゃなくて『何につなげる投稿なのか』だった。",
-      "わたしが変えたのは、書く量じゃなくて投稿の順番だった。",
-      "遠回りを止めたきっかけは、読者の次の一歩を先に決めたことだった。",
+      "見直したのは、記事の数じゃなくて記事のつなげ方だった。",
+      "わたしが変えたのは、書く量より先に流れの作り方だった。",
+      "まずは、今日の記事がどこにつながるのかを決めるようにした。",
     ], seed + 5),
-    concreteAction: `今日はテーマ名をそのまま書かずに、
-「読者の悩み」「勘違い」「わたしの失敗」「気づき」の4行メモを先に作ってから投稿する。`,
+    secondPostFailure: pickRandom([
+      "少し前のわたしは、入口だけ作ってその先を用意できてなかった。",
+      "昔のわたしは、書けた日だけで満足して流れを止めてた。",
+      "前のわたしは、最後まで読んだ人の次の動きを考えられてなかった。",
+    ], seed + 11),
+    whyImportant: pickRandom([
+      "この流れがないと、読者が次に進む道を作れてなかった。",
+      "つながりがないままだと、読んで終わりになりやすかった。",
+      "順番が決まるだけで、伝わり方が落ち着いてきた。",
+    ], seed + 13),
+    concreteAction: pickRandom([
+      "まずは、今日の記事がどこにつながるのかを1つだけ決める。",
+      "書く前に、最後に読んだ人が次に何を読むかだけ決めておく。",
+      "最初の一文を書く前に、今日の着地点をメモしてから進める。",
+    ], seed + 14),
+    gentleClose: pickRandom([
+      "今のやり方でいいのかなって不安になってる人は、まずはここからで大丈夫。",
+      "売れなくて悩んでる人は、まずはここからで大丈夫。",
+      "同じように迷ってる人は、まずはここからで大丈夫。",
+    ], seed + 15),
   };
+}
+
+function pickDistinctIndexes(total, count, seed) {
+  const need = Math.max(0, Math.min(total, count));
+  const set = new Set();
+  let cursor = Math.abs(seed);
+
+  while (set.size < need) {
+    set.add(cursor % total);
+    cursor += 7;
+  }
+
+  return set;
 }
 
 function getCtaByMode(mode, seed) {
@@ -630,6 +685,44 @@ function sanitizeNgWords(text, ngWords) {
     const re = new RegExp(escaped, "gi");
     return acc.replace(re, "[表現をやわらげる]");
   }, text);
+}
+
+function finalizeTreeSetText({ post1, post2 }) {
+  const forbiddenPhrases = [
+    "同じように迷ってる読者",
+    "テーマを見たまま",
+    "ずっと外してた",
+    "テーマ名",
+    "4行メモ",
+    "内部",
+    "生成",
+    "構成",
+    "1投稿目",
+    "2投稿目",
+  ];
+
+  let nextPost1 = post1;
+  let nextPost2 = post2;
+
+  forbiddenPhrases.forEach((phrase) => {
+    nextPost1 = nextPost1.replaceAll(phrase, "この部分");
+    nextPost2 = nextPost2.replaceAll(phrase, "この部分");
+  });
+
+  nextPost2 = nextPost2.replaceAll("同じように迷ってる読者は、まずここからで大丈夫。", "同じように迷ってる人は、まずここからで大丈夫。");
+  nextPost2 = nextPost2.replaceAll("読者は、まずここからで大丈夫。", "人は、まずここからで大丈夫。");
+
+  if (nextPost1.includes("頑張る場所を間違えてた。") && nextPost2.includes("頑張る場所を間違えてた。")) {
+    nextPost2 = nextPost2.replace("頑張る場所を間違えてた。", "進め方の順番を見直した。");
+  }
+  if (nextPost1.includes("見直す場所が違った。") && nextPost2.includes("見直す場所が違った。")) {
+    nextPost2 = nextPost2.replace("見直す場所が違った。", "見直すタイミングを変えた。");
+  }
+  if (nextPost1.includes("努力不足じゃなかった。") && nextPost2.includes("努力不足じゃなかった。")) {
+    nextPost2 = nextPost2.replace("努力不足じゃなかった。", "足りなかったのは量じゃなかった。");
+  }
+
+  return { post1: nextPost1, post2: nextPost2 };
 }
 
 function renderTreeSets(treeSets) {
