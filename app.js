@@ -35,7 +35,7 @@ async function init() {
 
   dom.generateBtn.addEventListener("click", () => {
     const treeSets = generateTwentyTreeSets({
-      theme: dom.themeInput.value.trim(),
+      themesText: dom.themeInput.value,
       goal: dom.goalSelect.value,
       tone: dom.toneSelect.value,
       categories: docsState.categories,
@@ -119,22 +119,39 @@ function parseMarkdownBullets(text) {
     .filter(Boolean);
 }
 
-function generateTwentyTreeSets({ theme, goal, tone, categories }) {
-  const safeTheme = theme || "看護師の働き方を少し良くする工夫";
+function parseThemeLines(themesText) {
+  const themes = themesText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (themes.length > 0) {
+    return themes;
+  }
+
+  return ["note初心者が続けやすくなる書き方"];
+}
+
+function generateTwentyTreeSets({ themesText, goal, tone, categories }) {
+  const themes = parseThemeLines(themesText);
   const normalizedCategories = categories.length ? categories : CATEGORY_FALLBACK;
   const treeSets = [];
 
   for (let i = 0; i < 20; i += 1) {
+    const baseTheme = themes[i % themes.length];
+    const categoryHint = normalizedCategories[i % normalizedCategories.length];
+    const variantTheme = buildVariantTheme(baseTheme, i, themes.length > 1 ? "multi" : "single", categoryHint);
+
     const tree = buildTreePosts({
       number: i + 1,
-      category: normalizedCategories[i % normalizedCategories.length],
-      theme: safeTheme,
+      theme: variantTheme,
       goal,
       tone,
     });
 
     treeSets.push({
       number: i + 1,
+      theme: variantTheme,
       post1: sanitizeNgWords(tree.post1, docsState.ngWords),
       post2: sanitizeNgWords(tree.post2, docsState.ngWords),
     });
@@ -143,60 +160,105 @@ function generateTwentyTreeSets({ theme, goal, tone, categories }) {
   return treeSets;
 }
 
-function buildTreePosts({ number, category, theme, goal, tone }) {
+function buildVariantTheme(theme, index, mode, categoryHint) {
+  if (mode === "multi") {
+    return theme;
+  }
+
+  const angles = [
+    "最初のつまずき",
+    "行動が止まる理由",
+    "遠回りしがちな勘違い",
+    "続けるための設計",
+    "読まれる導入の作り方",
+    "売れない原因の見直し",
+    "不安との向き合い方",
+    "反応が伸びる改善ポイント",
+    "時間がない人向けの工夫",
+    "固定記事につなげる考え方",
+  ];
+
+  const angle = angles[index % angles.length];
+  return `${theme}（${angle}・${categoryHint}）`;
+}
+
+function buildTreePosts({ number, theme, goal, tone }) {
   const toneGuide = {
-    やさしい: ["焦らなくていい", "いっしょに少しずつ", "できるところからで大丈夫"],
-    フラット: ["思っていたよりシンプル", "まずは小さく試す", "事実ベースで整理する"],
-    熱量高め: ["ここが変わると一気に前進", "勢いより継続が効く", "今の一歩が未来を変える"],
-    先輩っぽく端的: ["結論、最初は1つで十分", "迷ったら負担が低い順", "まず実行、あとで改善"],
+    やさしい: ["焦らなくて大丈夫", "わたしもそうだった", "いっしょに整えていこう"],
+    フラット: ["正直、仕組みで変わる", "でも気づいたらシンプルだった", "順番でかなり楽になる"],
+    熱量高め: ["ここを変えると一気に進む", "今日の一歩が未来を変える", "止まるより小さく動こう"],
+    先輩っぽく端的: ["結論、最初は1つでいい", "難しくしない方が続く", "まず実行、あとで改善でOK"],
   };
 
   const hookPatterns = [
-    `${theme}のこと、\nやろうと思うほど\n手が止まる日があった。`,
-    `${theme}って\n「ちゃんとしなきゃ」で\n苦しくなりやすい。`,
-    `${theme}を始めたころ、\nわたしは\n何から手をつけるか迷ってた。`,
-    `${theme}でつまずく原因、\n才能じゃなくて\n順番の問題だった。`,
+    `${theme}、\nがんばってるのに\nなぜか進まない。`,
+    `${theme}って\n「ちゃんとやらなきゃ」で\n苦しくなるんだよね。`,
+    `${theme}をやろうとすると、\n投稿前に\n不安で手が止まってた。`,
+    `${theme}で悩む人、\n実はすごく多いって\n最近あらためて思った。`,
+  ];
+
+  const painPatterns = [
+    "何を書けばいいか迷って、\n下書きだけ増える。",
+    "時間をかけたのに反応がなくて、\n自信が削れていく。",
+    "正解を探しすぎて、\n結局なにも出せない日が続く。",
+    "がんばってるのに空回りしてる感じ、\n正直つらいよね。",
   ];
 
   const empathyPatterns = [
-    "がんばってるのに進まないと、\n自分だけ遅れてる気がするよね。",
-    "情報が多すぎると、\n選ぶだけで疲れてしまうよね。",
-    "正解探しを続けるほど、\n行動が後ろにずれる感覚、あった。",
-    "時間がない日は特に、\n完璧主義がいちばんの壁になる。",
+    "わたしもそうだった。\nだから、そのしんどさわかる。",
+    "わたしも最初、\n同じところで何度も止まってた。",
+    "「向いてないのかも」って\nわたしも何回も思ってた。",
+    "でも気づいた。\n止まる理由は才能じゃなかった。",
+  ];
+
+  const cliffEndings = [
+    "でも、原因はそこじゃなかった。 1/2",
+    "わたしはずっと、ここを勘違いしてた。 1/2",
+    "売れない理由は、意外とシンプルだった。 1/2",
+    "続けられない人ほど、最初にここでつまずく。 1/2",
+    "ここに気づくまで、かなり遠回りした。 1/2",
+  ];
+
+  const answerPatterns = [
+    "答えは、\n最初から完璧を目指していたこと。",
+    "答えは、\n読まれる前提じゃなく「伝わる1人」を決めてなかったこと。",
+    "答えは、\n投稿の質より先に投稿回数を怖がっていたこと。",
+    "答えは、\nやることを増やしすぎて、1歩目が重くなっていたこと。",
   ];
 
   const insightPatterns = [
-    "気づいたのは、\n完璧より\n続けられる形が強いってこと。",
-    "学びになったのは、\n「小さく決める」と\n迷いが減ることだった。",
-    "変わったのは、\n最初のハードルを\n5分まで下げてから。",
-    "遠回りしてわかったのは、\n準備より\n1回目の実行が先ってこと。",
+    "わたしは、\n10点でも出すって決めてから\nやっと流れが変わった。",
+    "正直、知識より\n「毎日ちょっと出す設計」の方が\n効果が大きかった。",
+    "わたしも最初は怖かった。\nでも1本出すたびに\n怖さはちゃんと小さくなる。",
+    "でも気づいた。\n読まれない時期はムダじゃなくて、\n届け方を学ぶ期間だった。",
   ];
 
   const actionPatterns = [
-    "今日は\n「今から10分でやること」を\n1つだけ決めてみて。",
-    "まずは\nいちばん負担が軽い一歩を\n1つだけやってみよう。",
-    "メモに\n「次の行動」を1行だけ書いて、\nそのまま手を動かしてみて。",
-    "迷ったら\n「これなら今日できる」を選んで、\n小さく始めてみよう。",
+    "今日は、\n30分で1投稿の下書きだけ作ろう。\n完成は明日でいい。",
+    "まずは、\n「誰のどんな悩みか」を1行で書いてから\n本文を書いてみて。",
+    "次の投稿は、\n結論を1行目に置いて\n3行だけで出してみよう。",
+    "迷ったら、\n昨日の自分に向けて書く。\nこれだけで言葉がやさしくなる。",
   ];
 
   const bridgePatterns = [
-    "同じところで迷ってる人の\nヒントになればうれしい。👇",
-    "わたしの失敗ごと、\n役立つ形でこれからもシェアするね。👇",
-    "このテーマで気づいたこと、\nまた具体例つきで書いていくね。👇",
-    "似た悩みがある人に届くように、\n続きも投稿していくね。👇",
+    "同じように迷ってるなら、\nまず1本だけ一緒に出してみよう。 2/2",
+    "note初心者さんほど、\n小さく出すだけでちゃんと前に進める。 2/2",
+    "固定記事の整え方も、\n必要なら次の投稿で具体的に書くね。 2/2",
+    "わたしの失敗ベースでよければ、\nこれからもリアルにシェアしていく。 2/2",
   ];
 
-  const toneLine = toneGuide[tone] || toneGuide["フラット"];
+  const toneLine = (toneGuide[tone] || toneGuide.フラット)[number % 3];
   const hook = hookPatterns[number % hookPatterns.length];
+  const pain = painPatterns[number % painPatterns.length];
   const empathy = empathyPatterns[number % empathyPatterns.length];
+  const cliff = cliffEndings[number % cliffEndings.length];
+  const answer = answerPatterns[number % answerPatterns.length];
   const insight = insightPatterns[number % insightPatterns.length];
   const action = actionPatterns[number % actionPatterns.length];
   const bridge = bridgePatterns[number % bridgePatterns.length];
-  const toneNote = toneLine[number % toneLine.length];
 
-  const post1 = `${hook}\n\n${empathy}\n\n${category}でも、\n${goal}でも、\n最初は同じところで止まりやすい。\n\n${toneNote}。 1/2`;
-
-  const post2 = `${insight}\n\n${action}\n\n${bridge} 2/2`;
+  const post1 = `${hook}\n\n${pain}\n\n${empathy}\n\n${toneLine}。\n${cliff}`;
+  const post2 = `${answer}\n\n${insight}\n\n${action}\n\n${goal}を意識するなら、\n次の1投稿を先に予約しておくと止まりにくい。\n\n${bridge}`;
 
   return { post1, post2 };
 }
@@ -218,6 +280,7 @@ function renderTreeSets(treeSets) {
   treeSets.forEach((treeSet) => {
     const node = dom.postTemplate.content.firstElementChild.cloneNode(true);
     const numberNode = node.querySelector(".post-number");
+    const themeNode = node.querySelector(".post-theme");
     const post1Node = node.querySelector(".post1-text");
     const post2Node = node.querySelector(".post2-text");
     const copyPost1Btn = node.querySelector(".copy-post1-btn");
@@ -225,6 +288,7 @@ function renderTreeSets(treeSets) {
     const copyTreeBtn = node.querySelector(".copy-tree-btn");
 
     numberNode.textContent = `No.${treeSet.number}`;
+    themeNode.textContent = `テーマ：${treeSet.theme}`;
     post1Node.value = treeSet.post1;
     post2Node.value = treeSet.post2;
 
@@ -254,7 +318,7 @@ function renderTreeSets(treeSets) {
 }
 
 function formatTreeSetText(treeSet) {
-  return `No.${treeSet.number}\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
+  return `No.${treeSet.number}\nテーマ：${treeSet.theme}\n\n投稿1（1/2）\n${treeSet.post1}\n\n投稿2（2/2）\n${treeSet.post2}`;
 }
 
 function collectAllTreeSetsText() {
@@ -266,9 +330,10 @@ function collectAllTreeSetsText() {
   return cards
     .map((card) => {
       const no = card.querySelector(".post-number")?.textContent || "";
+      const theme = card.querySelector(".post-theme")?.textContent || "";
       const post1 = card.querySelector(".post1-text")?.value || "";
       const post2 = card.querySelector(".post2-text")?.value || "";
-      return `${no}\n投稿1（1/2）\n${post1}\n\n投稿2（2/2）\n${post2}`;
+      return `${no}\n${theme}\n\n投稿1（1/2）\n${post1}\n\n投稿2（2/2）\n${post2}`;
     })
     .join("\n\n");
 }

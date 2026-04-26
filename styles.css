@@ -134,6 +134,12 @@ button:disabled {
   font-weight: 700;
 }
 
+.post-theme {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .tree-label {
   font-size: 0.9rem;
   font-weight: 700;

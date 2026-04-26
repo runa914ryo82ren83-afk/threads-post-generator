@@ -15,13 +15,12 @@
 
       <section class="panel form-panel">
         <div class="field">
-          <label for="themeInput">今日のテーマ</label>
-          <input
+          <label for="themeInput">今日のテーマ一覧</label>
+          <textarea
             id="themeInput"
-            type="text"
-            placeholder="例：看護師が副業を始める最初の一歩"
-            maxlength="120"
-          />
+            rows="6"
+            placeholder="例：note初心者が挫折する理由\n有料記事を出すのが怖い理由\nビューが伸びない人の共通点"
+          ></textarea>
         </div>
 
         <div class="field">
@@ -54,6 +53,7 @@
         <div class="post-header">
           <span class="post-number"></span>
         </div>
+        <p class="post-theme"></p>
         <label class="tree-label">投稿1（1/2）</label>
         <textarea class="post-text post1-text" rows="7" readonly></textarea>
         <button class="copy-post1-btn secondary">投稿1をコピー</button>
